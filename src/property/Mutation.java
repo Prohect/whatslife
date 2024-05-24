@@ -21,8 +21,7 @@ public interface Mutation {
                 try {
                     if (field.get(this) instanceof Mutation) {//非基本数据类型
                         ((Mutation) field.get(this)).mutate();
-                    } else if (field.get(this) instanceof double[]) {
-                        double[] array = (double[]) field.get(this);
+                    } else if (field.get(this) instanceof double[] array) {
                         Mutable mutable = field.getAnnotation(Mutable.class);
                         for (int i = 0; i < array.length; i++) {
                             double v = array[i] + mutable.step() * nextDouble2();
