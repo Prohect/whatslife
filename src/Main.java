@@ -1,15 +1,38 @@
+import entity.Entity;
+import property.PassType;
+
+import java.util.Arrays;
+
 //TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
 // 点击装订区域中的 <icon src="AllIcons.Actions.Execute"/> 图标。
 public class Main {
-    public static void main(String[] args) {
-        //TIP 当文本光标位于高亮显示的文本处时按 <shortcut actionId="ShowIntentionActions"/>
-        // 查看 IntelliJ IDEA 建议如何修正。
-        System.out.printf("Hello and welcome!");
+    double d = 1;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP 按 <shortcut actionId="Debug"/> 开始调试代码。我们已经设置了一个 <icon src="AllIcons.Debugger.Db_set_breakpoint"/> 断点
-            // 但您始终可以通过按 <shortcut actionId="ToggleLineBreakpoint"/> 添加更多断点。
-            System.out.println("i = " + i);
-        }
+    Main(double d) {
+        this.d = d;
+    }
+
+    public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException {
+
+        Entity e1 = new Entity(1, 1);
+        Entity e2 = e1.reproduce();
+
+        PassType a = PassType.A;
+        PassType b = a;
+        a = PassType.B;
+        System.out.println(b);
+
+
+        System.out.println(e1);
+        System.out.println(e2);
+        Arrays.stream(e1.getClass().getDeclaredFields()).filter(f -> !f.getName().equals("preferEnergyType")).forEach(field -> {
+            try {
+                field.setAccessible(true);
+                System.out.println(field.getName() + " " + (field.get(e1).getClass()) + " " + (field.get(e1).getClass().isEnum()));
+            } catch (IllegalAccessException ex) {
+                ex.printStackTrace();
+            }
+        });
+
     }
 }

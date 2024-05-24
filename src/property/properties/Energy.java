@@ -1,6 +1,6 @@
-package arg.args;
+package property.properties;
 
-import arg.*;
+import property.*;
 
 @Tick
 public class Energy implements Mutation, Passable<Energy> {

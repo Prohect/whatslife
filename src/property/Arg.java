@@ -1,4 +1,4 @@
-package arg;
+package property;
 
 public abstract class Arg<T> {
 

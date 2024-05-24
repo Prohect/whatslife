@@ -1,4 +1,4 @@
-package arg;
+package property;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -12,23 +12,48 @@ public interface Passable<T> extends Cloneable {
             field.setAccessible(true);
             if (field.get(this) instanceof Passable) {//Passable4Class
                 ((Passable) field.get(this)).pass(type, field.get(son));
+            } else if (field.get(this) instanceof double[] array1) {
+                field.set(son, array1.clone());
             } else {
                 field.set(son, field.get(this));
             }
             field.setAccessible(accessible);
+
         }
         fields = Arrays.stream(this.getClass().getDeclaredFields()).filter(field -> field.getAnnotation(Passable4ExtensiveProperty.class) != null).toList();
         for (Field field : fields) {
-            switch (type) {
-                case A:
-                    field.set(son, (double) field.get(this) / 2);
-                    field.set(this, (double) field.get(this) / 2);
-                    break;
-                case B:
-                    field.set(son, (double) field.get(this) / 20);
-                    field.set(this, (double) field.get(this) * (19 / 20));
-                    break;
+            boolean accessible = field.canAccess(this);
+            field.setAccessible(true);
+            if (field.get(this) instanceof double[]) {
+                double[] array1 = (double[]) field.get(this);
+                double[] array2 = (double[]) field.get(son);
+                for (int i = 0; i < array1.length; i++) {
+                    switch (type) {
+                        case A:
+                            array1[i] *= 0.5;
+                            array2[i] = array1[i];
+                            break;
+                        case B:
+                            array2[i] = array1[i] / 20;
+                            array1[i] -= array2[i];
+                            break;
+                    }
+                }
+            } else if (field.get(this).getClass().isEnum()) {
+                field.set(son, field.get(this));
+            } else {
+                switch (type) {
+                    case A:
+                        field.set(son, (double) field.get(this) / 2);
+                        field.set(this, (double) field.get(this) / 2);
+                        break;
+                    case B:
+                        field.set(son, (double) field.get(this) / 20);
+                        field.set(this, (double) field.get(this) * (19 / 20));
+                        break;
+                }
             }
+            field.setAccessible(accessible);
         }
 
     }
