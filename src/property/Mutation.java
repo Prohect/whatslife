@@ -22,11 +22,13 @@ public interface Mutation {
                     if (field.get(this) instanceof Mutation) {//非基本数据类型
                         ((Mutation) field.get(this)).mutate();
                     } else if (field.get(this) instanceof double[]) {
-                        for (double v : ((double[]) field.get(this))) {
-                            Mutable mutable = field.getAnnotation(Mutable.class);
-                            v += mutable.step() * nextDouble2();
+                        double[] array = (double[]) field.get(this);
+                        Mutable mutable = field.getAnnotation(Mutable.class);
+                        for (int i = 0; i < array.length; i++) {
+                            double v = array[i] + mutable.step() * nextDouble2();
                             v = Math.max(mutable.minValue(), v);
                             v = Math.min(mutable.maxValue(), v);
+                            array[i] = v;
                         }
                     } else if (field.get(this) instanceof Double) {
                         Mutable mutable = field.getAnnotation(Mutable.class);
