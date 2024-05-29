@@ -12,10 +12,6 @@ public interface Passable<T> extends Cloneable {
             field.setAccessible(true);
             if (field.get(this) instanceof Passable) {//Passable4Class
                 ((Passable) field.get(this)).pass(type, field.get(son));
-            } else if (field.get(this) instanceof double[] array1) {
-                field.set(son, array1.clone());
-            } else {
-                field.set(son, field.get(this));
             }
             field.setAccessible(accessible);
 
@@ -31,11 +27,11 @@ public interface Passable<T> extends Cloneable {
                     switch (type) {
                         case A:
                             array1[i] *= 0.5;
-                            array2[i] = array1[i];
+                            array2[i] *= 0.5;
                             break;
                         case B:
-                            array2[i] = array1[i] / 20;
-                            array1[i] -= array2[i];
+                            array2[i] = array2[i] / 20;
+                            array1[i] = array1[i] * 19 / 20;
                             break;
                     }
                 }
@@ -44,11 +40,11 @@ public interface Passable<T> extends Cloneable {
             } else {
                 switch (type) {
                     case A:
-                        field.set(son, (double) field.get(this) / 2);
+                        field.set(son, (double) field.get(son) / 2);
                         field.set(this, (double) field.get(this) / 2);
                         break;
                     case B:
-                        field.set(son, (double) field.get(this) / 20);
+                        field.set(son, (double) field.get(son) / 20);
                         field.set(this, (double) field.get(this) * (19 / 20));
                         break;
                 }

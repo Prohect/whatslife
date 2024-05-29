@@ -15,9 +15,9 @@ public interface Mutation {
     default void mutate() {
         List<Field> fields = Arrays.stream(this.getClass().getDeclaredFields()).toList();
         for (Field field : fields) {
-            boolean accessible = field.canAccess(this);
-            field.setAccessible(true);
             if (field.getAnnotation(Mutable.class) != null) {
+                boolean accessible = field.canAccess(this);
+                field.setAccessible(true);
                 try {
                     if (field.get(this) instanceof Mutation) {//非基本数据类型
                         ((Mutation) field.get(this)).mutate();
@@ -41,9 +41,10 @@ public interface Mutation {
                         }
                     }
                 } catch (Exception e) {
+                } finally {
+                    field.setAccessible(accessible);
                 }
             }
-            field.setAccessible(accessible);
         }
     }
 }

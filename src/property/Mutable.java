@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface Mutable {
     double minValue() default 0;
 
-    double maxValue() default 1E2;
+    double maxValue() default 10;
 
-    double step() default 1E-2;
+    double step() default 1E-1;
 }
