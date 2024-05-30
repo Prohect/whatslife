@@ -23,34 +23,27 @@ public class Entrance {
 
         ArrayList<Entity> entities = Entity.entities;
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 20; i++) {
             entities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.5d, 10, 10));
         }
 
-        while (entities.size() > 0 && entities.size() < 1E4) {
+
+        while (!entities.isEmpty() && entities.size() < 1E4) {
             ++time;
             Lib.currentEnergyFromSun = 10;
             int size = entities.size();
             for (int i = 0; i < size; i++) {
                 entities.get(size - i - 1).tick();
             }
-            if (entities.size() <= 10 && !entities.isEmpty()) {
-//                System.out.println(entities.getFirst().toString());
-            }
             if (entities.size() >= 8000) {
                 Entity e = entities.get((int) (entities.size() * Math.random()) - 1);
                 System.out.println(e);
-                String string = String.valueOf(e.getVelocity().length());
-                if (string.equals("NaN") ){
-                    double m = e.getMass();
-                    m++;
-                }
             }
             double sumEnergy = 0;
-            for (int i = 0; i < entities.size(); i++) {
-                sumEnergy += entities.get(i).getEnergy().getAllEnergy4AllType();
+            for (Entity entity : entities) {
+                sumEnergy += entity.getEnergy().getAllEnergy4AllType();
             }
-            System.out.println(entities.size() + "\t\t" + sumEnergy + "\t\t");
+            System.out.println(time + "\t" + entities.size() + "\t" + sumEnergy);
         }
 
 //        Vector_Math vector_math1 = new Vector_Math(new double[]{-1d, 2d, 0});

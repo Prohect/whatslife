@@ -178,34 +178,17 @@ public class Entity implements Passable<Entity>, Mutation, Tick, Cloneable {
 
     @Override
     public void tick() throws CloneNotSupportedException, IllegalAccessException {
-        String string = "";
         //TODO:acceleration process needed by brain
         if (getAcceleration() == null || getAcceleration().length() == 0) {
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * maxAcceleration, (rand.nextDouble(2) - 1) * 0.2 * maxAcceleration}));
-            string = String.valueOf(getAcceleration().length());
-            if (string.equals("NaN")) {
-                string = "null";
-            }
         } else {
-            string = String.valueOf(getAcceleration().length());
-            if (string.equals("NaN")) {
-                string = "null";
-            }
             this.getAcceleration().add(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * maxAcceleration, (rand.nextDouble(2) - 1) * 0.2 * maxAcceleration}));
 //            this.acceleration.multi(Math.min(maxAcceleration / acceleration.length(), 1));
-            string = String.valueOf(getAcceleration().length());
-            if (string.equals("NaN")) {
-                string = "null";
-            }
             Vector_Math oldAcceleration = this.getAcceleration();
             //causing NaN
             if (this.getAcceleration().length() > maxAcceleration) {
                 this.setAcceleration(oldAcceleration.clone());
                 this.getAcceleration().multi(maxAcceleration / getAcceleration().length());
-            }
-            string = String.valueOf(getAcceleration().length());
-            if (string.equals("NaN")) {
-                string = "null";
             }
         }
 
@@ -215,10 +198,6 @@ public class Entity implements Passable<Entity>, Mutation, Tick, Cloneable {
         this.velocity.multi(0.8d);
         Vector_Math velocity1 = this.velocity.clone();
         velocity1.add(getAcceleration());
-        string = String.valueOf(getVelocity().length());
-        if (string.equals("NaN")) {
-            string = "null";
-        }
 
         //TODO:the value of the arg of this get could be negative
         if (this.energy.get(0.5f * (this.mass * (velocity1.dot(velocity1) - velocity.dot(velocity))))) {
@@ -227,21 +206,9 @@ public class Entity implements Passable<Entity>, Mutation, Tick, Cloneable {
             double e = this.energy.getAll4currentType();
             if (e > 0) {
                 Vector_Math newVelocity = this.velocity.clone();
-                string = String.valueOf(newVelocity.length());
-                if (string.equals("NaN")) {
-                    string = "null";
-                }
-                newVelocity.multi(((0.5 * this.getMass() * this.velocity.dot(this.velocity)) + e) / (0.5 * this.getMass() * this.velocity.dot(this.velocity)));
-                string = String.valueOf(newVelocity.length());
-                if (string.equals("NaN")) {
-                    string = "null";
-                }
+                newVelocity.multi(Math.sqrt(((0.5 * this.getMass() * this.velocity.dot(this.velocity)) + e) / (0.5 * this.getMass() * this.velocity.dot(this.velocity))));
                 this.setAcceleration(newVelocity.clone());
                 this.getAcceleration().sub(this.velocity);
-                string = String.valueOf(getAcceleration().length());
-                if (string.equals("NaN")) {
-                    string = "null";
-                }
                 this.velocity = newVelocity;
             }
         }
@@ -284,6 +251,9 @@ public class Entity implements Passable<Entity>, Mutation, Tick, Cloneable {
             entities.remove(this);
         }
         if (this.mass <= 0) {
+            entities.remove(this);
+        }
+        if (this.getVelocity().length() <= 0.001) {
             entities.remove(this);
         }
     }
