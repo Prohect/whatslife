@@ -183,9 +183,7 @@ public class Entity implements Passable<Entity>, Mutation, Tick, Cloneable {
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * maxAcceleration, (rand.nextDouble(2) - 1) * 0.2 * maxAcceleration}));
         } else {
             this.getAcceleration().add(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * maxAcceleration, (rand.nextDouble(2) - 1) * 0.2 * maxAcceleration}));
-//            this.acceleration.multi(Math.min(maxAcceleration / acceleration.length(), 1));
             Vector_Math oldAcceleration = this.getAcceleration();
-            //causing NaN
             if (this.getAcceleration().length() > maxAcceleration) {
                 this.setAcceleration(oldAcceleration.clone());
                 this.getAcceleration().multi(maxAcceleration / getAcceleration().length());

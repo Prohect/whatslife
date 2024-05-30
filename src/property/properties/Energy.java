@@ -107,7 +107,10 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     }
 
     public boolean get(double d) {
-        if (d <= 0) return true;
+        if (d <= 0) {
+            this.add(-d);
+            return true;
+        }
         int i = (int) Math.floor(preferEnergyType);
         if (able(d, i)) {
             setCurrentEnergyType(i);
