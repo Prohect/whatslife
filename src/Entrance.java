@@ -1,9 +1,13 @@
+import entity.AbstractEntity;
 import entity.Entity;
 import property.EntityType;
 import property.PassType;
 import property.properties.Energy;
 import until.Lib;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 //TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
@@ -19,32 +23,42 @@ public class Entrance {
         this.d = d;
     }
 
-    public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException {
+    public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException, IOException {
 
-        ArrayList<Entity> entities = Entity.entities;
+        ArrayList<Entity> entities = AbstractEntity.entities;
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 5; i++) {
             entities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.5d, 10, 10));
         }
 
+        File logFile = new File("log" + System.currentTimeMillis() + ".txt");
+        if (!logFile.exists()) {
+            logFile.createNewFile();
+        }
+        PrintWriter writer = new PrintWriter(logFile);
 
-        while (!entities.isEmpty() && entities.size() < 1E4) {
+        double sumEnergyLastTick = 0;
+
+        while (!entities.isEmpty() && time < 1E6) {
             ++time;
-            Lib.currentEnergyFromSun = 10;
+            Lib.currentEnergyFromSun = 1;
             int size = entities.size();
             for (int i = 0; i < size; i++) {
                 entities.get(size - i - 1).tick();
             }
             if (entities.size() >= 8000) {
-                Entity e = entities.get((int) (entities.size() * Math.random()) - 1);
+                AbstractEntity e = entities.get((int) (entities.size() * Math.random()) - 1);
                 System.out.println(e);
             }
-            double sumEnergy = 0;
-            for (Entity entity : entities) {
-                sumEnergy += entity.getEnergy().getAllEnergy4AllType();
+            double sum = 0;
+            for (AbstractEntity abstractEntity : entities) {
+                sum += abstractEntity.getEnergy().getAllEnergy4AllType();
             }
-            System.out.println(time + "\t" + entities.size() + "\t" + sumEnergy);
+            writer.println(time + "\t" + entities.size() + "\t" + sum + "\t" + (sum - sumEnergyLastTick));
+            sumEnergyLastTick = sum;
         }
+        writer.flush();
+        writer.close();
 
 //        Vector_Math vector_math1 = new Vector_Math(new double[]{-1d, 2d, 0});
 //        Vector_Math vector_math2 = new Vector_Math(new double[]{1d, -1d, 0});

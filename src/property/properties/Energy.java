@@ -1,6 +1,6 @@
 package property.properties;
 
-import entity.Entity;
+import entity.AbstractEntity;
 import property.*;
 
 import java.util.Arrays;
@@ -22,13 +22,13 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     @Mutable
     @Passable4IntensiveProperty
     private double[] mass2energyRate = new double[8];
-    private Entity entity;
+    private AbstractEntity abstractEntity;
 
-    public Energy(double[] mass2energyRate, double[] maxPower, int preferEnergyType, Entity entity) {
+    public Energy(double[] mass2energyRate, double[] maxPower, int preferEnergyType, AbstractEntity abstractEntity) {
         this.mass2energyRate = mass2energyRate;
         this.maxPower = maxPower;
         this.preferEnergyType = preferEnergyType;
-        this.entity = entity;
+        this.abstractEntity = abstractEntity;
     }
 
     @Override
@@ -57,12 +57,12 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
         return energy[i];
     }
 
-    public void setEntity(Entity entity) {
-        this.entity = entity;
+    public void setEntity(AbstractEntity abstractEntity) {
+        this.abstractEntity = abstractEntity;
     }
 
-    public Energy(Entity entity) {
-        this.entity = entity;
+    public Energy(AbstractEntity abstractEntity) {
+        this.abstractEntity = abstractEntity;
     }
 
     public double getPreferEnergyType() {
@@ -88,14 +88,14 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     public double getMaxEnergyVolume() {
         double result = 0;
         for (int i = 0; i < energy.length; i++) {
-            result += mass2energyRate[i] * entity.getMass();
+            result += mass2energyRate[i] * abstractEntity.getMass();
         }
         return result;
     }
 
     public double getMaxEnergyVolume4Type(int i) {
 
-        return entity.getMass() * mass2energyRate[i];
+        return abstractEntity.getMass() * mass2energyRate[i];
     }
 
     public double getAllEnergy4AllType() {
@@ -116,7 +116,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
             setCurrentEnergyType(i);
             return get(d, i);
         }
-        this.entity.getMass();
+        this.abstractEntity.getMass();
         for (int j = 0; j < 8; j++) {
             if (i == j) continue;
             if (able(d, j)) {
@@ -155,8 +155,8 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
             setCurrentEnergyType((int) Math.floor(preferEnergyType));
             return;
         } else if (energyPreferred() < maxEnergyPreferred()) {
-            d -= mass2energyRate[(int) Math.floor(preferEnergyType)] * entity.getMass() - energy[(int) Math.floor(preferEnergyType)];
-            energy[(int) Math.floor(preferEnergyType)] = mass2energyRate[(int) Math.floor(preferEnergyType)] * entity.getMass();
+            d -= mass2energyRate[(int) Math.floor(preferEnergyType)] * abstractEntity.getMass() - energy[(int) Math.floor(preferEnergyType)];
+            energy[(int) Math.floor(preferEnergyType)] = mass2energyRate[(int) Math.floor(preferEnergyType)] * abstractEntity.getMass();
             setCurrentEnergyType((int) Math.floor(preferEnergyType));
         }
         for (int i = 0; i < energy.length; i++) {
@@ -174,7 +174,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     }
 
     private double maxEnergy(int i) {
-        return mass2energyRate[i] * entity.getMass();
+        return mass2energyRate[i] * abstractEntity.getMass();
     }
 
     private double maxEnergyPreferred() {
