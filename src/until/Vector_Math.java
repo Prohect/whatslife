@@ -37,51 +37,51 @@ public class Vector_Math implements Cloneable {
     }
 
     public Vector_Math add(Vector_Math b) {
-        String s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        String s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         for (int i = 0; i < vector.length; i++) {
             if (i < b.vector.length) {
                 vector[i] += b.vector[i];
             }
         }
-        s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         return this;
     }
 
     public Vector_Math sub(Vector_Math b) {
-        String s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        String s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         for (int i = 0; i < vector.length; i++) {
             if (i < b.vector.length) {
                 vector[i] -= b.vector[i];
             }
         }
-        s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         return this;
     }
 
     public Vector_Math multi(double b) {
-        String s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        String s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         for (int i = 0; i < vector.length; i++) {
             vector[i] *= b;
         }
-        s = String.valueOf(this.length());
-        if (s.equals("NaN")) {
-            s = "null";
-        }
+//        s = String.valueOf(this.length());
+//        if (s.equals("NaN")) {
+//            s = "null";
+//        }
         return this;
     }
 
