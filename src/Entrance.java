@@ -15,20 +15,17 @@ import java.util.ArrayList;
 public class Entrance {
 
 
-    double d = 1;
+    static int sameStatsTicks = 0;
 
     public static long time = 0;
 
-    Entrance(double d) {
-        this.d = d;
-    }
-
     public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException, IOException {
 
-        ArrayList<Entity> entities = AbstractEntity.entities;
+        ArrayList<Entity> producerEntities = AbstractEntity.producerEntities;
+        ArrayList<Entity> consumerEntities = AbstractEntity.consumerEntities;
 
-        for (int i = 0; i < 5; i++) {
-            entities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.5d, 10, 10));
+        for (int i = 0; i < 50; i++) {
+            producerEntities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.5d, 10, 10));
         }
 
         File logFile = new File("log" + System.currentTimeMillis() + ".txt");
@@ -39,25 +36,46 @@ public class Entrance {
 
         double sumEnergyLastTick = 0;
 
-        while (!entities.isEmpty() && time < 1E6) {
+        boolean flag = true;
+
+        while ((!producerEntities.isEmpty()) && time < 1E5 && flag) {
             ++time;
-            Lib.currentEnergyFromSun = 1;
-            int size = entities.size();
-            for (int i = 0; i < size; i++) {
-                entities.get(size - i - 1).tick();
+            Lib.currentEnergyFromSun = 50;
+            int producersSize = producerEntities.size();
+            for (int i = 0; i < producersSize; i++) {
+                Entity producer = producerEntities.get(producersSize - 1 - i);
+                producer.tick();
             }
-            if (entities.size() >= 8000) {
-                AbstractEntity e = entities.get((int) (entities.size() * Math.random()) - 1);
+            int consumersSize = consumerEntities.size();
+            for (int i = 0; i < consumersSize; i++) {
+                Entity consumer = consumerEntities.get(consumersSize - 1 - i);
+                consumer.tick();
+            }
+            if (producerEntities.size() >= 1E3) {
+                AbstractEntity e = producerEntities.get((int) (producerEntities.size() * Math.random()) - 1);
+                System.out.println(e);
+            }
+            if (consumerEntities.size() >= 1E3) {
+                AbstractEntity e = consumerEntities.get((int) (consumerEntities.size() * Math.random()) - 1);
                 System.out.println(e);
             }
             double sum = 0;
-            for (AbstractEntity abstractEntity : entities) {
-                sum += abstractEntity.getEnergy().getAllEnergy4AllType();
+            for (Entity producerEntity : producerEntities) {
+                sum += producerEntity.getEnergy().getAllEnergy4AllType();
             }
-            writer.println(time + "\t" + entities.size() + "\t" + sum + "\t" + (sum - sumEnergyLastTick));
+            for (Entity consumerEntity : consumerEntities) {
+                sum += consumerEntity.getEnergy().getAllEnergy4AllType();
+            }
+            if (sum - sumEnergyLastTick == 0) {
+                sameStatsTicks++;
+            } else sameStatsTicks = 0;
+            if (sameStatsTicks >= 100) {
+                flag = false;
+            }
+            writer.println(time + "\t" + producerEntities.size() + "\t" + consumerEntities.size() + "\t" + sum);
             sumEnergyLastTick = sum;
+            writer.flush();
         }
-        writer.flush();
         writer.close();
 
 //        Vector_Math vector_math1 = new Vector_Math(new double[]{-1d, 2d, 0});

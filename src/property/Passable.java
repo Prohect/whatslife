@@ -1,12 +1,18 @@
 package property;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public interface Passable<T> extends Cloneable {
     default void pass(PassType type, T son) throws IllegalAccessException {
-        List<Field> fields = Arrays.stream(this.getClass().getDeclaredFields()).filter(field -> field.getAnnotation(Passable4Class.class) != null || field.getAnnotation(Passable4IntensiveProperty.class) != null).toList();
+        List<Field> fields = new ArrayList<>();
+        Class<?> clazz = this.getClass();
+        do {
+            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).filter(field -> field.getAnnotation(Passable4Class.class) != null || field.getAnnotation(Passable4IntensiveProperty.class) != null).toList());
+            clazz = clazz.getSuperclass();
+        } while (clazz != Object.class);
         for (Field field : fields) {
             boolean accessible = field.canAccess(this);
             field.setAccessible(true);
@@ -16,7 +22,12 @@ public interface Passable<T> extends Cloneable {
             field.setAccessible(accessible);
 
         }
-        fields = Arrays.stream(this.getClass().getDeclaredFields()).filter(field -> field.getAnnotation(Passable4ExtensiveProperty.class) != null).toList();
+        fields = new ArrayList<>();
+        clazz = this.getClass();
+        do {
+            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).filter(field -> field.getAnnotation(Passable4ExtensiveProperty.class) != null).toList());
+            clazz = clazz.getSuperclass();
+        } while (clazz != Object.class);
         for (Field field : fields) {
             boolean accessible = field.canAccess(this);
             field.setAccessible(true);

@@ -9,7 +9,8 @@ import java.util.ArrayList;
 public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutation, Tick, Cloneable {
 
 
-    public static ArrayList<Entity> entities = new ArrayList<>();
+    public static ArrayList<Entity> consumerEntities = new ArrayList<>();
+    public static ArrayList<Entity> producerEntities = new ArrayList<>();
 
 
     @Passable4IntensiveProperty
@@ -46,13 +47,64 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Passable4IntensiveProperty
     @Mutable
     private double maxEnergyGenerateRate;
+    @Passable4IntensiveProperty
+    @Mutable(minValue = 1E-2, maxValue = 5)
+    private double reachOfKillAura;
+    @Passable4IntensiveProperty
+    @Mutable(minValue = 1E-2, maxValue = 0.8)
+    private double energyTransferRate;
+    @Passable4IntensiveProperty
+    @Mutable(minValue = 1E-2, maxValue = 5)
+    private double safeDistance;
+    @Passable4IntensiveProperty
+    @Mutable(minValue = 1E-5, maxValue = 0.6)
+    private double rateOfMaxAccelerationOnChasingTarget;
+    private AbstractEntity targetOfConsumer;
+
+    public double getEnergyTransferRate() {
+        return energyTransferRate;
+    }
+
+    public void setEnergyTransferRate(double energyTransferRate) {
+        this.energyTransferRate = energyTransferRate;
+    }
+
+    public double getSafeDistance() {
+        return safeDistance;
+    }
+
+    public void setSafeDistance(double safeDistance) {
+        this.safeDistance = safeDistance;
+    }
+
+    public AbstractEntity getTargetOfConsumer() {
+        return targetOfConsumer;
+    }
+
+    public void setTargetOfConsumer(AbstractEntity targetOfConsumer) {
+        this.targetOfConsumer = targetOfConsumer;
+    }
+
+    public double getReachOfKillAura() {
+        return reachOfKillAura;
+    }
+
+    public void setReachOfKillAura(double reachOfKillAura) {
+        this.reachOfKillAura = reachOfKillAura;
+    }
 
     private AbstractEntity() {
+        if (getAcceleration() == null || getAcceleration().length() == 0) {
+            setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
+        }
     }
 
     public AbstractEntity(double maxMass, double maxVolume) {
         this.maxMass = maxMass;
         this.maxVolume = maxVolume;
+        if (getAcceleration() == null || getAcceleration().length() == 0) {
+            setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
+        }
     }
 
     public void setAcceleration(Vector_Math acceleration) {
@@ -89,6 +141,10 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         this.pos = new Vector_Math(new double[]{rand.nextDouble(2) - 1, rand.nextDouble(2) - 1});
         this.maxVelocity = maxVelocity;
         this.maxAcceleration = maxAcceleration;
+        if (getAcceleration() == null || getAcceleration().length() == 0) {
+            setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
+        }
+        this.velocity = getAcceleration().clone();
     }
 
     public double getX() {
@@ -164,14 +220,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         return e;
     }
 
-    public static ArrayList<Entity> getEntities() {
-        return entities;
-    }
-
-    public static void setEntities(ArrayList<Entity> entities) {
-        AbstractEntity.entities = entities;
-    }
-
     public Vector_Math getPos() {
         return pos;
     }
@@ -224,4 +272,11 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
 
+    public double getRateOfMaxAccelerationOnChasingTarget() {
+        return rateOfMaxAccelerationOnChasingTarget;
+    }
+
+    public void setRateOfMaxAccelerationOnChasingTarget(double rateOfMaxAccelerationOnChasingTarget) {
+        this.rateOfMaxAccelerationOnChasingTarget = rateOfMaxAccelerationOnChasingTarget;
+    }
 }

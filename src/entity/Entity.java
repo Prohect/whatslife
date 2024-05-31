@@ -6,6 +6,9 @@ import property.properties.Energy;
 import until.Lib;
 import until.Vector_Math;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class Entity extends AbstractEntity {
     public Entity(double maxMass, double maxVolume) {
         super(maxMass, maxVolume);
@@ -13,7 +16,7 @@ public class Entity extends AbstractEntity {
 
     @Override
     public AbstractEntity reproduce() throws CloneNotSupportedException, IllegalAccessException {
-        Entity e = (Entity) this.clone();
+        Entity e = (Entity) super.reproduce();
         this.pass(getPassType(), e);
         e.mutate();
         return e;
@@ -26,17 +29,43 @@ public class Entity extends AbstractEntity {
     @Override
     public void tick() throws CloneNotSupportedException, IllegalAccessException {
         //TODO:acceleration process needed by brain
-        if (getAcceleration() == null || getAcceleration().length() == 0) {
-            setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
-        } else {
-            this.getAcceleration().add(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
-            Vector_Math oldAcceleration = this.getAcceleration();
-            if (this.getAcceleration().length() > getMaxAcceleration()) {
-                this.setAcceleration(oldAcceleration.clone());
-                this.getAcceleration().multi(getMaxAcceleration() / getAcceleration().length());
-            }
-        }
+        switch (getEntityType()) {
+            case PRODUCER:
+                double result = Math.min(getMaxEnergyGenerateRate() * rand.nextFloat(), Lib.currentEnergyFromSun);
+                this.getEnergy().add(result);
+                Lib.currentEnergyFromSun -= result;
+                Entity e = getClosestConsumerEntity();
+                if (e != null) {
+                    Vector_Math deltaPos = this.getPos().sub(e.getPos());
+                    if (deltaPos.length() < this.getSafeDistance())
+                        this.setAcceleration(deltaPos);
+                    else
+                        this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
+                } else
+                    this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
 
+                break;
+            case CONSUMER:
+                if (this.tryEat((Entity) this.getTargetOfConsumer())) {
+                    this.setAcceleration(getTargetOfConsumer().getPos().sub(this.getPos()));
+                    ((Entity) getTargetOfConsumer()).die();
+                    setTargetOfConsumer(getClosestProducerEntity());
+                } else {
+                    if (getTargetOfConsumer() == null || !producerEntities.contains((Entity) getTargetOfConsumer())) {
+                        this.setTargetOfConsumer(getClosestProducerEntity());
+                    }
+                    if (getTargetOfConsumer() == null) {
+                        //there's no producer at all, so just do random move
+                        this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
+                        this.getAcceleration().multi(getRateOfMaxAccelerationOnChasingTarget());
+                    } else {
+                        this.setAcceleration(getTargetOfConsumer().getPos().sub(this.getPos()));
+                        this.getAcceleration().multi(getRateOfMaxAccelerationOnChasingTarget());
+                    }
+
+                }
+                break;
+        }
 
         //velocity & energy
         this.getEnergy().tick();
@@ -67,40 +96,85 @@ public class Entity extends AbstractEntity {
         getPos().add(getVelocity());
 
 
-        switch (getEntityType()) {
-            case PRODUCER:
-                double result = Math.min(getMaxEnergyGenerateRate() * rand.nextFloat(), Lib.currentEnergyFromSun);
-                if (entities.size() > 2E3) {
-//                    System.out.println(currentEnergyFromSun);
-                }
-                this.getEnergy().add(result);
-                Lib.currentEnergyFromSun -= result;
-                break;
-            case CONSUMER:
-                break;
-        }
-
         if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D) {
             double d = this.setMass(Math.min(this.getMass() + ((this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType())) / 5), this.getMaxMass()));
             this.getEnergy().get(d);
             this.getEnergy().get(0.5f * d * getVelocity().dot(getVelocity()));
         }
 
-        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D && this.getMass() / this.getMaxMass() > 0.6) {
-            Entity e = (Entity) this.reproduce();
-            entities.add(e);
-            e.tick();
-        }
 
-
-        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= 0.19d) {
-            entities.remove(this);
+        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= 0.11d) {
+            this.die();
         }
-        if (this.getMass() <= 0) {
-            entities.remove(this);
+        if (this.getMass() <= 0.0001) {
+            this.die();
+        }
+        if (this.getEnergy().getAllEnergy4AllType() <= (this.getEntityType() == EntityType.CONSUMER ? 0.9 : 0.1)) {
+            this.die();
         }
         if (this.getVelocity().length() <= 0.001) {
-            entities.remove(this);
+            this.die();
+        }
+        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D && this.getMass() / this.getMaxMass() > 0.6) {
+            Entity e = (Entity) this.reproduce();
+            switch (e.getEntityType()) {
+                case CONSUMER:
+                    consumerEntities.add(e);
+                    // when this is producer while the son is a consumer,
+                    // the son would eat this for they have equal pos ,
+                    // making the producerEntities list remove this ,
+                    // causing ConcurrentModificationException where the list is iterated ,
+                    // so e.tick() cant be invoke that way !
+                    // also thinking about this e.tick() may reproduce another consumer causing the problem
+                    if (this.getEntityType() == EntityType.CONSUMER) {
+                        e.tick();
+                    }
+                    break;
+                case PRODUCER:
+                    producerEntities.add(e);
+                    e.tick();
+                    break;
+            }
+
         }
     }
+
+    private void die() {
+        producerEntities.remove(this);
+        consumerEntities.remove(this);
+    }
+
+    private boolean tryEat(Entity entity) {
+        if (entity == null) return false;
+        Vector_Math distanceVector = entity.getPos().clone();
+        distanceVector.sub(this.getPos());
+        if (distanceVector.length() < this.getReachOfKillAura()) {
+            this.getEnergy().add(entity.getEnergy().getAllEnergy4AllType() * this.getEnergyTransferRate());
+            return true;
+        }
+        return false;
+    }
+
+    private Entity getClosestProducerEntity() {
+        return getClosestEntityFromList(producerEntities);
+    }
+
+    private Entity getClosestConsumerEntity() {
+        return getClosestEntityFromList(consumerEntities);
+    }
+
+    private Entity getClosestEntityFromList(List<Entity> list) {
+        AtomicReference<Entity> target = new AtomicReference<>();
+        AtomicReference<Double> minDistance = new AtomicReference<>(Double.MAX_VALUE);
+        list.forEach(entity -> {
+            Vector_Math distanceVector = entity.getPos().clone();
+            distanceVector.sub(this.getPos());
+            if (distanceVector.length() < minDistance.get()) {
+                target.set(entity);
+                minDistance.set(distanceVector.length());
+            }
+        });
+        return target.get();
+    }
+
 }

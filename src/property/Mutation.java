@@ -1,6 +1,7 @@
 package property;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -13,7 +14,13 @@ public interface Mutation {
     }
 
     default void mutate() {
-        List<Field> fields = Arrays.stream(this.getClass().getDeclaredFields()).toList();
+        List<Field> fields = new ArrayList<>();
+        Class<?> clazz = this.getClass();
+        do {
+            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).toList());
+            clazz = clazz.getSuperclass();
+        } while (clazz != Object.class);
+
         for (Field field : fields) {
             if (field.getAnnotation(Mutable.class) != null) {
                 boolean accessible = field.canAccess(this);
@@ -36,7 +43,8 @@ public interface Mutation {
                         d = Math.min(mutable.maxValue(), d);
                         field.set(this, d);
                     } else if (field.get(this).getClass().isEnum()) {
-                        if (rand.nextDouble() < field.getAnnotation(Mutable.class).step()) {
+                        double random = rand.nextDouble();
+                        if (random < field.getAnnotation(Mutable.class).step()) {
                             field.set(this, field.get(this).getClass().getEnumConstants()[rand.nextInt(field.get(this).getClass().getEnumConstants().length)]);
                         }
                     }
