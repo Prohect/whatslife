@@ -7,9 +7,9 @@ import java.util.Arrays;
 
 public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     @Mutable(minValue = 0, maxValue = 7)//there's now only 8 energy types
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private double preferEnergyType;
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private int currentEnergyType;
     //preferEnergyType works as the index of the follow array
     @Passable4ExtensiveProperty
@@ -17,10 +17,10 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     @Mutable
     private double[] energyUsedThisTick = new double[8];
     @Mutable
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private double[] maxPower = new double[8];
     @Mutable
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private double[] mass2energyRate = new double[8];
     private AbstractEntity abstractEntity;
 

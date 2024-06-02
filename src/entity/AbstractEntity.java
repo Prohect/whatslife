@@ -2,28 +2,31 @@ package entity;
 
 import property.*;
 import property.properties.Energy;
+import render.EntityRenderer;
 import until.Vector_Math;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutation, Tick, Cloneable {
 
 
-    public static ArrayList<Entity> consumerEntities = new ArrayList<>();
-    public static ArrayList<Entity> producerEntities = new ArrayList<>();
+    public static ArrayList<AbstractEntity> consumerEntities = new ArrayList<>();
+    public static ArrayList<AbstractEntity> producerEntities = new ArrayList<>();
 
 
-    @Passable4IntensiveProperty
+    private EntityRenderer entityRenderer = new EntityRenderer(this);
+    //    @Passable4IntensiveProperty
     private Vector_Math pos;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     private Vector_Math velocity;
     @Mutable(minValue = 1)
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private double maxVelocity;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     private Vector_Math acceleration;
     @Mutable(minValue = 1E-1)
-    @Passable4IntensiveProperty
+//    @Passable4IntensiveProperty
     private double maxAcceleration;
 
     @Mutable
@@ -41,23 +44,23 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Passable4ExtensiveProperty
     @Mutable
     private PassType passType = PassType.A;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     @Mutable
     private EntityType entityType;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     @Mutable
     private double maxEnergyGenerateRate;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double reachOfKillAura;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 0.8)
     private double energyTransferRate;
-    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double safeDistance;
-    @Passable4IntensiveProperty
-    @Mutable(minValue = 1E-5, maxValue = 0.6)
+    //    @Passable4IntensiveProperty
+    @Mutable(minValue = 0.4, maxValue = 0.9)
     private double rateOfMaxAccelerationOnChasingTarget;
     private AbstractEntity targetOfConsumer;
 
@@ -119,12 +122,13 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
     @Override
-    protected Object clone() throws CloneNotSupportedException {
+    protected AbstractEntity clone() throws CloneNotSupportedException {
         AbstractEntity clone = (AbstractEntity) super.clone();
         clone.energy = (Energy) this.energy.clone();
         clone.velocity = this.velocity.clone();
         clone.acceleration = this.acceleration.clone();
         clone.pos = this.pos.clone();
+        clone.entityRenderer = this.entityRenderer.clone(clone);
         return clone;
     }
 
@@ -145,14 +149,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
         }
         this.velocity = getAcceleration().clone();
-    }
-
-    public double getX() {
-        return pos.getVector()[0];
-    }
-
-    public double getY() {
-        return pos.getVector()[1];
     }
 
     public Vector_Math getVelocity() {
@@ -278,5 +274,9 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
 
     public void setRateOfMaxAccelerationOnChasingTarget(double rateOfMaxAccelerationOnChasingTarget) {
         this.rateOfMaxAccelerationOnChasingTarget = rateOfMaxAccelerationOnChasingTarget;
+    }
+
+    public void paint(Graphics g) {
+        entityRenderer.paint(g);
     }
 }

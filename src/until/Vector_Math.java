@@ -36,6 +36,16 @@ public class Vector_Math implements Cloneable {
         }
     }
 
+    public Vector_Math getRotateVector2D(double angle) {
+        double newAngle = getAngle() + angle;
+        double length = this.length();
+        return new Vector_Math(new double[]{length * Math.cos(newAngle), length * Math.sin(newAngle)});
+    }
+
+    public double getAngle() {
+        return Math.atan(vector[1] / vector[0]) + (vector[0] >= 0 ? 0 : Math.PI);
+    }
+
     public Vector_Math add(Vector_Math b) {
 //        String s = String.valueOf(this.length());
 //        if (s.equals("NaN")) {
@@ -119,6 +129,22 @@ public class Vector_Math implements Cloneable {
         return "Vector_Math{" +
                 "vector=" + Arrays.toString(vector) +
                 '}';
+    }
+
+    public double getX() {
+        return vector[0];
+    }
+
+    public double getY() {
+        return vector[1];
+    }
+
+    public void setX(double x) {
+        vector[0] = x;
+    }
+
+    public void setY(double y) {
+        vector[1] = y;
     }
 }
 

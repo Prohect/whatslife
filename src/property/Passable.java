@@ -10,7 +10,9 @@ public interface Passable<T> extends Cloneable {
         List<Field> fields = new ArrayList<>();
         Class<?> clazz = this.getClass();
         do {
-            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).filter(field -> field.getAnnotation(Passable4Class.class) != null || field.getAnnotation(Passable4IntensiveProperty.class) != null).toList());
+            fields.addAll(Arrays.stream(clazz.getDeclaredFields()).filter(field -> field.getAnnotation(Passable4Class.class) != null
+//                            || field.getAnnotation(Passable4IntensiveProperty.class) != null
+            ).toList());
             clazz = clazz.getSuperclass();
         } while (clazz != Object.class);
         for (Field field : fields) {
@@ -19,6 +21,11 @@ public interface Passable<T> extends Cloneable {
             if (field.get(this) instanceof Passable) {//Passable4Class
                 ((Passable) field.get(this)).pass(type, field.get(son));
             }
+/*            else if (field.getAnnotation(Passable4IntensiveProperty.class)!=null) {
+                if (field.get(this) instanceof Cloneable cloneable){
+//                    field.set(son,((Object) cloneable).clone());
+                }
+            }*/
             field.setAccessible(accessible);
 
         }
@@ -31,8 +38,7 @@ public interface Passable<T> extends Cloneable {
         for (Field field : fields) {
             boolean accessible = field.canAccess(this);
             field.setAccessible(true);
-            if (field.get(this) instanceof double[]) {
-                double[] array1 = (double[]) field.get(this);
+            if (field.get(this) instanceof double[] array1) {
                 double[] array2 = (double[]) field.get(son);
                 for (int i = 0; i < array1.length; i++) {
                     switch (type) {
