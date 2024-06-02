@@ -30,3 +30,5 @@ bin/
 
 ### log files
 log?*.txt
+history?*.csv
+history1717333012190.xlsx

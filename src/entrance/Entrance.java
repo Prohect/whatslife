@@ -123,6 +123,20 @@ public class Entrance {
 
         myFrame.dispose();
 
+        //History outPut
+        File historyLogFile = new File("history" + System.currentTimeMillis() + ".csv");
+        if (!logFile.exists()) {
+            logFile.createNewFile();
+        }
+        PrintWriter historyWriter = new PrintWriter(historyLogFile);
+        AbstractEntity.entitiesHistory.forEach((aLong, abstractEntities) -> {
+            abstractEntities.forEach(abstractEntity -> {
+                historyWriter.print(aLong + ",");
+                historyWriter.println(abstractEntity.toString());
+            });
+        });
+        historyWriter.flush();
+        historyWriter.close();
         writer.close();
 
 //        Vector_Math vector_math1 = new Vector_Math(new double[]{-1d, 2d, 0});

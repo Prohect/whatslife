@@ -9,7 +9,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     @Mutable(minValue = 0, maxValue = 7)//there's now only 8 energy types
 //    @Passable4IntensiveProperty
     private double preferEnergyType;
-//    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     private int currentEnergyType;
     //preferEnergyType works as the index of the follow array
     @Passable4ExtensiveProperty
@@ -129,9 +129,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
 
     @Override
     public String toString() {
-        return "Energy{" +
-                "energy=" + getAllEnergy4AllType() +
-                '}';
+        return String.valueOf(getAllEnergy4AllType());
     }
 
     public double getAll4currentType() {

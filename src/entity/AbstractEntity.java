@@ -7,12 +7,18 @@ import until.Vector_Math;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutation, Tick, Cloneable {
 
 
     public static ArrayList<AbstractEntity> consumerEntities = new ArrayList<>();
+    public static HashMap<Long, ArrayList<AbstractEntity>> entitiesHistory = new HashMap<>();
     public static ArrayList<AbstractEntity> producerEntities = new ArrayList<>();
+
+    final Random random = new Random();
+    private long uuid = random.nextLong();
 
 
     private EntityRenderer entityRenderer = new EntityRenderer(this);
@@ -63,6 +69,10 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Mutable(minValue = 0.4, maxValue = 0.9)
     private double rateOfMaxAccelerationOnChasingTarget;
     private AbstractEntity targetOfConsumer;
+
+    public long getUuid() {
+        return uuid;
+    }
 
     public double getEnergyTransferRate() {
         return energyTransferRate;
@@ -210,7 +220,8 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
     public AbstractEntity reproduce() throws CloneNotSupportedException, IllegalAccessException {
-        AbstractEntity e = (AbstractEntity) this.clone();
+        AbstractEntity e = this.clone();
+        e.uuid = e.random.nextLong();
         this.pass(passType, e);
         e.mutate();
         return e;
@@ -258,15 +269,29 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
 
     @Override
     public String toString() {
-        return "Entity{" +
-                "velocity=" + velocity.length() +
-                ", acceleration=" + getAcceleration().length() +
-                ", energy=" + energy +
-                ", mass=" + mass +
-                ", maxEnergyGenerateRate=" + maxEnergyGenerateRate +
-                '}';
+        return "AbstractEntity," +
+//                ", uuid," + uuid +
+                ", pos," + pos +
+                ", velocity," + velocity +
+                ", maxVelocity," + maxVelocity +
+                ", acceleration," + acceleration +
+                ", maxAcceleration," + maxAcceleration +
+                ", maxMass," + maxMass +
+//                ", maxVolume," + maxVolume +
+                ", energy," + energy +
+                ", mass," + mass +
+                ", volume," + volume +
+                ", passType," + passType +
+                ", entityType," + entityType +
+                ", maxEnergyGenerateRate," + maxEnergyGenerateRate +
+                ", reachOfKillAura," + reachOfKillAura +
+                ", energyTransferRate," + energyTransferRate +
+                ", safeDistance," + safeDistance +
+                ", rateOfMaxAccelerationOnChasingTarget," + rateOfMaxAccelerationOnChasingTarget +
+//                ", targetOfConsumer," + targetOfConsumer+
+                ""
+                ;
     }
-
 
     public double getRateOfMaxAccelerationOnChasingTarget() {
         return rateOfMaxAccelerationOnChasingTarget;

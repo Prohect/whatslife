@@ -2,10 +2,10 @@ package map;
 
 public class Map {
 
-    private double minX = -960;
-    private double maxX = 960;
-    private double minY = -540;
-    private double maxY = 540;
+    private double minX = -900;
+    private double maxX = 900;
+    private double minY = -500;
+    private double maxY = 500;
 
     public double getMinX() {
         return minX;

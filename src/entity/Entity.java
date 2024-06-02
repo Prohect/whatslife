@@ -7,6 +7,7 @@ import property.properties.Energy;
 import until.Lib;
 import until.Vector_Math;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -140,6 +141,14 @@ public class Entity extends AbstractEntity {
                     break;
             }
 
+        }
+        ArrayList<AbstractEntity> abstractEntities = AbstractEntity.entitiesHistory.get(this.getUuid());
+        if (abstractEntities != null) {
+            abstractEntities.add(this.clone());
+        } else {
+            ArrayList<AbstractEntity> abstractEntities1 = new ArrayList<>();
+            abstractEntities1.add(this);
+            AbstractEntity.entitiesHistory.put(this.getUuid(), abstractEntities1);
         }
     }
 

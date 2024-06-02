@@ -126,9 +126,15 @@ public class Vector_Math implements Cloneable {
 
     @Override
     public String toString() {
-        return "Vector_Math{" +
-                "vector=" + Arrays.toString(vector) +
-                '}';
+        String result = "";
+        for (double v : vector) {
+            result += String.valueOf(v);
+            result += ",";
+        }
+        if (result.endsWith(",")) {
+            result = result.substring(0, result.length() - 2);
+        }
+        return result;
     }
 
     public double getX() {

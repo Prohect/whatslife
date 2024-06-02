@@ -20,6 +20,10 @@ public class EntityRenderer extends Component implements Cloneable {
         Graphics2D g2D = (Graphics2D) g;
         Color color = g2D.getColor();
 
+        g2D.setColor(Color.MAGENTA);
+        g2D.drawLine(0, 540, 1920, 540);
+        g2D.drawLine(960, 0, 960, 1080);
+
         int x = (int) entity.getPos().getX() + 960;
         int y = (int) entity.getPos().getY() + 540;
 
@@ -29,8 +33,7 @@ public class EntityRenderer extends Component implements Cloneable {
 
         if (entity.getEntityType() == EntityType.CONSUMER) {
             g2D.setColor(Color.RED);
-        }
-        else {
+        } else {
             g2D.setColor(Color.GREEN);
         }
         g2D.fillOval(x, y, 10, 10);
@@ -40,7 +43,6 @@ public class EntityRenderer extends Component implements Cloneable {
         g2D.drawLine(x + 5, y + 5, (int) arrowBaseLine.getX() + x + 5, (int) arrowBaseLine.getY() + y + 5);
         g2D.drawLine((int) arrowBaseLine.getX() + x + 5, (int) arrowBaseLine.getY() + y + 5, (int) ((int) arrowBaseLine.getX() + x + 5 + arrowPart1.getX()), (int) ((int) arrowBaseLine.getY() + y + 5 + arrowPart1.getY()));
         g2D.drawLine((int) arrowBaseLine.getX() + x + 5, (int) arrowBaseLine.getY() + y + 5, (int) ((int) arrowBaseLine.getX() + x + 5 + arrowPart2.getX()), (int) ((int) arrowBaseLine.getY() + y + 5 + arrowPart2.getY()));
-
 
         g2D.setColor(color);
     }
