@@ -165,7 +165,7 @@ public class Entrance {
             if (sameStatsTicks >= 100) flag.set(false);
 
             //log update
-            writer.println(time + "\t" + producerEntities.size() + "\t" + consumerEntities.size() + "\t" + sum);
+            writer.println(time + "\t\t" + producerEntities.size() + "\t\t" + consumerEntities.size() + "\t\t" + sum);
             sumEnergyLastTick.set((long) sum);
             writer.flush();
 
