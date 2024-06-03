@@ -129,7 +129,7 @@ public class Entrance {
         if (flag.get()) {
             ++time;
             //reset the total energy could be generated this tick
-            Lib.currentEnergyFromSun = 10;
+            Lib.currentEnergyFromSun = 20;
 
             //ticking
             int producersSize = producerEntities.size();

@@ -52,23 +52,20 @@ public class Entity extends AbstractEntity {
 
                 break;
             case CONSUMER:
+                if (getTargetOfConsumer() == null || !producerEntities.contains(getTargetOfConsumer()))
+                    setTargetOfConsumer(getClosestProducerEntity());
                 if (this.tryEat(this.getTargetOfConsumer())) {
                     tryEatAllNearProducer();
                     setTargetOfConsumer(getClosestProducerEntity());
                     if (getTargetOfConsumer() == null)
                         this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
-                    else
-                        this.setAcceleration(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
+                    else this.setAcceleration(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
                 } else {
-                    if (getTargetOfConsumer() == null || !producerEntities.contains(getTargetOfConsumer())) {
-                        this.setTargetOfConsumer(getClosestProducerEntity());
-                    }
                     if (getTargetOfConsumer() == null) {
                         //there's no producer at all, so just do random move
                         this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
                         this.getAcceleration().multi(getRateOfMaxAccelerationOnChasingTarget());
                     } else {
-                        this.setTargetOfConsumer(getClosestProducerEntity());
                         this.setAcceleration(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
                         this.getAcceleration().multi(getRateOfMaxAccelerationOnChasingTarget());
                     }
@@ -79,7 +76,18 @@ public class Entity extends AbstractEntity {
 
         //velocity & energy
         this.getEnergy().tick(getCurrentTick());
-        this.getVelocity().multi(0.7d);
+        if (getEntityType() == EntityType.PRODUCER) {
+            this.getVelocity().multi(0.8d);
+        }
+        if (getEntityType() == EntityType.CONSUMER && getTargetOfConsumer() != null) {
+            double vi = getVelocity().dot(getTargetOfConsumer().getPos().clone().sub(this.getPos())) / getTargetOfConsumer().getPos().clone().sub(this.getPos()).length();
+            if (vi < 0) {
+                vi *= -0.35D;
+                this.setVelocity(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
+                this.getVelocity().multi(vi / this.getVelocity().length());
+            }
+            this.getVelocity().multi(0.95D);
+        }
         Vector_Math velocity1 = this.getVelocity().clone();
         velocity1.add(getAcceleration());
 
@@ -105,14 +113,14 @@ public class Entity extends AbstractEntity {
         posCheck();
 
         //mass update
-        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D) {
+        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.2D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D) {
             double d = this.setMass(Math.min(this.getMass() + ((this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType())) / 5), this.getMaxMass()));
             this.getEnergy().hardGet(d);
             this.getEnergy().hardGet(0.5f * d * getVelocity().dot(getVelocity()));
         }
 
         //die
-        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= 0.11D) {
+        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.05D)) {
             this.die();
             return;
         }
@@ -120,11 +128,11 @@ public class Entity extends AbstractEntity {
             this.die();
             return;
         }
-        if (this.getEnergy().getAllEnergy4AllType() <= 0.1) {
+        if (this.getEnergy().getAllEnergy4AllType() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.05D)) {
             this.die();
             return;
         }
-        if (this.getVelocity().length() <= 0.01) {
+        if (this.getVelocity().length() <= 0.1) {
             this.die();
             return;
         }
@@ -186,9 +194,8 @@ public class Entity extends AbstractEntity {
 
     private boolean tryEat(AbstractEntity entity) {
         if (entity == null) return false;
-        Vector_Math distanceVector = entity.getPos().clone();
-        distanceVector.sub(this.getPos());
-        if (distanceVector.length() < this.getReachOfKillAura()) {
+        Vector_Math deltaPos = entity.getPos().clone().sub(this.getPos());
+        if (deltaPos.length() < this.getReachOfKillAura() || deltaPos.length() < this.getReachOfKillAura() + (this.getVelocity().dot(deltaPos) / deltaPos.length())) {
             this.getEnergy().add(entity.getEnergy().getAllEnergy4AllType() * this.getEnergyTransferRate());
             entity.die();
             return true;

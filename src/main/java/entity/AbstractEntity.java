@@ -55,14 +55,14 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private double maxEnergyGenerateRate;
     @Mutable(minValue = 5E-1, maxValue = 1E2)
     private float energyGenerateRatio = 10;
-    @Mutable(minValue = 1E-2, maxValue = 5)
-    private double reachOfKillAura;
+    @Mutable(minValue = 1E-2, maxValue = 20)
+    private double reachOfKillAura = 5;
     @Mutable(minValue = 1E-2, maxValue = 1)
-    private double energyTransferRate = 0.3;
+    private double energyTransferRate = 0.7;
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double safeDistance;
     @Mutable(minValue = 0.4, maxValue = 0.9)
-    private double rateOfMaxAccelerationOnChasingTarget;
+    private double rateOfMaxAccelerationOnChasingTarget = 0.4;
     private AbstractEntity targetOfConsumer;
 
     private AbstractEntity() {
@@ -123,8 +123,11 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
     public void die() {
-        producerEntities.remove(this);
-        consumerEntities.remove(this);
+        if (this.getEntityType() == EntityType.PRODUCER) {
+            producerEntities.remove(this);
+        } else {
+            consumerEntities.remove(this);
+        }
     }
 
     @Override
