@@ -116,12 +116,41 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
             setCurrentEnergyType(i);
             return get(d, i);
         }
-        this.abstractEntity.getMass();
         for (int j = 0; j < 8; j++) {
             if (i == j) continue;
             if (able(d, j)) {
                 setCurrentEnergyType(j);
                 return get(d, j);
+            }
+        }
+        return false;
+    }
+
+    public boolean hardGet(double d) {
+        if (d <= 0) {
+            this.add(-d);
+            return true;
+        }
+        double d2 = d;
+        int i = (int) Math.floor(preferEnergyType);
+        if (able(d, i)) {
+            setCurrentEnergyType(i);
+            return get(d, i);
+        } else {
+            d2 -= getValue4Type(i);
+            get(d, i);
+            d = d2;
+        }
+        for (int j = 0; j < 8; j++) {
+            if (i == j) continue;
+            if (able(d, j)) {
+                setCurrentEnergyType(j);
+                return get(d, j);
+            } else {
+                d2 -= getValue4Type(i);
+                get(d, j);
+                d = d2;
+                setCurrentEnergyType(j);
             }
         }
         return false;
