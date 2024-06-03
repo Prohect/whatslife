@@ -181,7 +181,8 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     //below r just automatically generated getters and setters, so no real mechanism inside
     //don't need to read them
 
-    //if unexpected things happens, these getters and setters could help u find why in debug for they just limit the access to these private properties, that's why I write all properties here in an abstract clazz
+    //if unexpected things happens, these getters and setters could help u find why in debug for they just limit the access to these private properties
+    //that's why I write all properties here in an abstract clazz
 
     public Random getRandom() {
         return random;
