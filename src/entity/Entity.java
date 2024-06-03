@@ -31,7 +31,8 @@ public class Entity extends AbstractEntity {
     }
 
     @Override
-    public void tick() throws CloneNotSupportedException, IllegalAccessException {
+    public void tick(long t) throws CloneNotSupportedException, IllegalAccessException {
+        super.tick(t);
         //TODO:acceleration process needed by brain
         switch (getEntityType()) {
             case PRODUCER:
@@ -72,7 +73,7 @@ public class Entity extends AbstractEntity {
         }
 
         //velocity & energy
-        this.getEnergy().tick();
+        this.getEnergy().tick(getTick());
         this.getVelocity().multi(0.7d);
         Vector_Math velocity1 = this.getVelocity().clone();
         velocity1.add(getAcceleration());
@@ -132,12 +133,12 @@ public class Entity extends AbstractEntity {
                     // so e.tick() cant be invoke that way !
                     // also thinking about this e.tick() may reproduce another consumer causing the problem
                     if (this.getEntityType() == EntityType.CONSUMER) {
-                        e.tick();
+                        e.tick(this.getTick());
                     }
                     break;
                 case PRODUCER:
                     producerEntities.add(e);
-                    e.tick();
+                    e.tick(this.getTick());
                     break;
             }
 

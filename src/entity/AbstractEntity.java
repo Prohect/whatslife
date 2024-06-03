@@ -19,7 +19,16 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
 
     final Random random = new Random();
     private long uuid = random.nextLong();
+    private long tick;
 
+    @Override
+    public void tick(long t) throws CloneNotSupportedException, IllegalAccessException {
+        this.tick = t;
+    }
+
+    public long getTick() {
+        return tick;
+    }
 
     private EntityRenderer entityRenderer = new EntityRenderer(this);
     //    @Passable4IntensiveProperty

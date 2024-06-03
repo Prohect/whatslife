@@ -189,7 +189,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     }
 
     @Override
-    public void tick() {
+    public void tick(long t) {
         Arrays.fill(energyUsedThisTick, 0);
 //        if (energy[(int) Math.floor(preferEnergyType)] >= 0) {
 //            currentEnergyType = (int) Math.floor(preferEnergyType);

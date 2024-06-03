@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 
 public interface Tick {
-    public void tick() throws CloneNotSupportedException, IllegalAccessException;
+    public void tick(long t) throws CloneNotSupportedException, IllegalAccessException;
 }
