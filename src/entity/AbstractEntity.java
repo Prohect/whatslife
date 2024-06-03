@@ -19,41 +19,38 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
 
     final Random random = new Random();
     private long uuid = random.nextLong();
-    private long tick;
+    private long currentTick;
 
     @Override
     public void tick(long t) throws CloneNotSupportedException, IllegalAccessException {
-        this.tick = t;
-    }
-
-    public long getTick() {
-        return tick;
+        this.currentTick = t;
     }
 
     private EntityRenderer entityRenderer = new EntityRenderer(this);
+
     //    @Passable4IntensiveProperty
     private Vector_Math pos;
     //    @Passable4IntensiveProperty
     private Vector_Math velocity;
     @Mutable(minValue = 1)
-//    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     private double maxVelocity;
     //    @Passable4IntensiveProperty
     private Vector_Math acceleration;
     @Mutable(minValue = 1E-1)
-//    @Passable4IntensiveProperty
+    //    @Passable4IntensiveProperty
     private double maxAcceleration;
-
     @Mutable
     private double maxMass;
+
     @Mutable
     private double maxVolume;
     @Mutable
     @Passable4Class
     private Energy energy;
-
     @Passable4ExtensiveProperty
     private double mass;
+
     @Passable4ExtensiveProperty
     private double volume;
     @Passable4ExtensiveProperty
@@ -66,8 +63,8 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Mutable
     private double maxEnergyGenerateRate;
     //    @Passable4IntensiveProperty
-    @Mutable(minValue = 5E-1, maxValue = 1E1, step = 5E-1)
-    private float energyGenerateRatio;
+    @Mutable(minValue = 5E-1, maxValue = 1E2, step = 5E-1)
+    private float energyGenerateRatio = 2;
     //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double reachOfKillAura;
@@ -82,50 +79,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private double rateOfMaxAccelerationOnChasingTarget;
     private AbstractEntity targetOfConsumer;
 
-    public float getEnergyGenerateRatio() {
-        return energyGenerateRatio;
-    }
-
-    public void setEnergyGenerateRatio(float energyGenerateRatio) {
-        this.energyGenerateRatio = energyGenerateRatio;
-    }
-
-    public long getUuid() {
-        return uuid;
-    }
-
-    public double getEnergyTransferRate() {
-        return energyTransferRate;
-    }
-
-    public void setEnergyTransferRate(double energyTransferRate) {
-        this.energyTransferRate = energyTransferRate;
-    }
-
-    public double getSafeDistance() {
-        return safeDistance;
-    }
-
-    public void setSafeDistance(double safeDistance) {
-        this.safeDistance = safeDistance;
-    }
-
-    public AbstractEntity getTargetOfConsumer() {
-        return targetOfConsumer;
-    }
-
-    public void setTargetOfConsumer(AbstractEntity targetOfConsumer) {
-        this.targetOfConsumer = targetOfConsumer;
-    }
-
-    public double getReachOfKillAura() {
-        return reachOfKillAura;
-    }
-
-    public void setReachOfKillAura(double reachOfKillAura) {
-        this.reachOfKillAura = reachOfKillAura;
-    }
-
     private AbstractEntity() {
         if (getAcceleration() == null || getAcceleration().length() == 0) {
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
@@ -138,17 +91,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         if (getAcceleration() == null || getAcceleration().length() == 0) {
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
         }
-    }
-
-    public void setAcceleration(Vector_Math acceleration) {
-        if (acceleration.length() >= maxAcceleration) {
-            acceleration.multi(maxAcceleration / acceleration.length());
-        }
-        this.acceleration = acceleration;
-    }
-
-    public Vector_Math getAcceleration() {
-        return acceleration;
     }
 
     @Override
@@ -181,12 +123,127 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         this.velocity = getAcceleration().clone();
     }
 
+    public AbstractEntity reproduce() throws CloneNotSupportedException, IllegalAccessException {
+        AbstractEntity e = this.clone();
+        e.uuid = e.random.nextLong();
+        this.pass(passType, e);
+        e.mutate();
+        return e;
+    }
+
+    @Override
+    public String toString() {
+        //why this is not clazz{a[num],bs[num1, num2]} pattern?
+        //to output these thing into a csv, then I could us excel to process these data
+
+        //if some property is ignored, probably it's mechanism not coded yet or not helpful in data processing
+        return "AbstractEntity," +
+//                ", uuid," + uuid +
+                ", tick," + currentTick +
+                ", pos," + pos +
+                ", velocity," + velocity +
+                ", maxVelocity," + maxVelocity +
+                ", acceleration," + acceleration +
+                ", maxAcceleration," + maxAcceleration +
+                ", maxMass," + maxMass +
+//                ", maxVolume," + maxVolume +
+                ", energy," + energy +
+                ", mass," + mass +
+//                ", volume," + volume +
+                ", passType," + passType +
+                ", entityType," + entityType +
+                ", maxEnergyGenerateRate," + maxEnergyGenerateRate +
+                ", reachOfKillAura," + reachOfKillAura +
+                ", energyTransferRate," + energyTransferRate +
+                ", safeDistance," + safeDistance +
+                ", rateOfMaxAccelerationOnChasingTarget," + rateOfMaxAccelerationOnChasingTarget +
+//                ", targetOfConsumer," + targetOfConsumer+
+                ""
+                ;
+    }
+
+    public void paint(Graphics g) {
+        entityRenderer.paint(g);
+    }
+
+    public void setAcceleration(Vector_Math acceleration) {
+        if (acceleration.length() >= maxAcceleration) {
+            acceleration.multi(maxAcceleration / acceleration.length());
+        }
+        this.acceleration = acceleration;
+    }
+
+    public void setVelocity(Vector_Math velocity) {
+        if (velocity.length() >= maxVelocity) {
+            velocity.multi(maxVelocity / velocity.length());
+        }
+        this.velocity = velocity;
+    }
+
+    public double setMass(double mass) {
+        double result = mass - this.mass;
+        this.mass = mass;
+        return result;
+    }
+
+
+    //below r just automatically generated getters and setters
+    //don't need to read them
+
+    public Random getRandom() {
+        return random;
+    }
+
+    public Vector_Math getAcceleration() {
+        return acceleration;
+    }
+
+    public long getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(long uuid) {
+        this.uuid = uuid;
+    }
+
+    public void setCurrentTick(long currentTick) {
+        this.currentTick = currentTick;
+    }
+
+    public EntityRenderer getEntityRenderer() {
+        return entityRenderer;
+    }
+
+    public void setEntityRenderer(EntityRenderer entityRenderer) {
+        this.entityRenderer = entityRenderer;
+    }
+
+    public Vector_Math getPos() {
+        return pos;
+    }
+
+    public void setPos(Vector_Math pos) {
+        this.pos = pos;
+    }
+
     public Vector_Math getVelocity() {
         return velocity;
     }
 
-    public void setVelocity(Vector_Math velocity) {
-        this.velocity = velocity;
+    public double getMaxVelocity() {
+        return maxVelocity;
+    }
+
+    public void setMaxVelocity(double maxVelocity) {
+        this.maxVelocity = maxVelocity;
+    }
+
+    public double getMaxAcceleration() {
+        return maxAcceleration;
+    }
+
+    public void setMaxAcceleration(double maxAcceleration) {
+        this.maxAcceleration = maxAcceleration;
     }
 
     public double getMaxMass() {
@@ -217,12 +274,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         return mass;
     }
 
-    public double setMass(double mass) {
-        double result = mass - this.mass;
-        this.mass = mass;
-        return result;
-    }
-
     public double getVolume() {
         return volume;
     }
@@ -237,38 +288,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
 
     public void setPassType(PassType passType) {
         this.passType = passType;
-    }
-
-    public AbstractEntity reproduce() throws CloneNotSupportedException, IllegalAccessException {
-        AbstractEntity e = this.clone();
-        e.uuid = e.random.nextLong();
-        this.pass(passType, e);
-        e.mutate();
-        return e;
-    }
-
-    public Vector_Math getPos() {
-        return pos;
-    }
-
-    public void setPos(Vector_Math pos) {
-        this.pos = pos;
-    }
-
-    public double getMaxVelocity() {
-        return maxVelocity;
-    }
-
-    public void setMaxVelocity(double maxVelocity) {
-        this.maxVelocity = maxVelocity;
-    }
-
-    public double getMaxAcceleration() {
-        return maxAcceleration;
-    }
-
-    public void setMaxAcceleration(double maxAcceleration) {
-        this.maxAcceleration = maxAcceleration;
     }
 
     public EntityType getEntityType() {
@@ -287,31 +306,36 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         this.maxEnergyGenerateRate = maxEnergyGenerateRate;
     }
 
-    @Override
-    public String toString() {
-        return "AbstractEntity," +
-//                ", uuid," + uuid +
-                ", tick," + tick +
-                ", pos," + pos +
-                ", velocity," + velocity +
-                ", maxVelocity," + maxVelocity +
-                ", acceleration," + acceleration +
-                ", maxAcceleration," + maxAcceleration +
-                ", maxMass," + maxMass +
-//                ", maxVolume," + maxVolume +
-                ", energy," + energy +
-                ", mass," + mass +
-                ", volume," + volume +
-                ", passType," + passType +
-                ", entityType," + entityType +
-                ", maxEnergyGenerateRate," + maxEnergyGenerateRate +
-                ", reachOfKillAura," + reachOfKillAura +
-                ", energyTransferRate," + energyTransferRate +
-                ", safeDistance," + safeDistance +
-                ", rateOfMaxAccelerationOnChasingTarget," + rateOfMaxAccelerationOnChasingTarget +
-//                ", targetOfConsumer," + targetOfConsumer+
-                ""
-                ;
+    public float getEnergyGenerateRatio() {
+        return energyGenerateRatio;
+    }
+
+    public void setEnergyGenerateRatio(float energyGenerateRatio) {
+        this.energyGenerateRatio = energyGenerateRatio;
+    }
+
+    public double getReachOfKillAura() {
+        return reachOfKillAura;
+    }
+
+    public void setReachOfKillAura(double reachOfKillAura) {
+        this.reachOfKillAura = reachOfKillAura;
+    }
+
+    public double getEnergyTransferRate() {
+        return energyTransferRate;
+    }
+
+    public void setEnergyTransferRate(double energyTransferRate) {
+        this.energyTransferRate = energyTransferRate;
+    }
+
+    public double getSafeDistance() {
+        return safeDistance;
+    }
+
+    public void setSafeDistance(double safeDistance) {
+        this.safeDistance = safeDistance;
     }
 
     public double getRateOfMaxAccelerationOnChasingTarget() {
@@ -322,7 +346,15 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         this.rateOfMaxAccelerationOnChasingTarget = rateOfMaxAccelerationOnChasingTarget;
     }
 
-    public void paint(Graphics g) {
-        entityRenderer.paint(g);
+    public long getCurrentTick() {
+        return currentTick;
+    }
+
+    public AbstractEntity getTargetOfConsumer() {
+        return targetOfConsumer;
+    }
+
+    public void setTargetOfConsumer(AbstractEntity targetOfConsumer) {
+        this.targetOfConsumer = targetOfConsumer;
     }
 }

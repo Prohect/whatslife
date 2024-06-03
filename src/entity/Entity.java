@@ -73,7 +73,7 @@ public class Entity extends AbstractEntity {
         }
 
         //velocity & energy
-        this.getEnergy().tick(getTick());
+        this.getEnergy().tick(getCurrentTick());
         this.getVelocity().multi(0.7d);
         Vector_Math velocity1 = this.getVelocity().clone();
         velocity1.add(getAcceleration());
@@ -133,12 +133,12 @@ public class Entity extends AbstractEntity {
                     // so e.tick() cant be invoke that way !
                     // also thinking about this e.tick() may reproduce another consumer causing the problem
                     if (this.getEntityType() == EntityType.CONSUMER) {
-                        e.tick(this.getTick());
+                        e.tick(this.getCurrentTick());
                     }
                     break;
                 case PRODUCER:
                     producerEntities.add(e);
-                    e.tick(this.getTick());
+                    e.tick(this.getCurrentTick());
                     break;
             }
 
