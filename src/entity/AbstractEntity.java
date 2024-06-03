@@ -12,37 +12,31 @@ import java.util.Random;
 
 public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutation, Tick, Cloneable {
 
-
+    //statics
     public static ArrayList<AbstractEntity> consumerEntities = new ArrayList<>();
     public static HashMap<Long, ArrayList<AbstractEntity>> entitiesHistory = new HashMap<>();
     public static ArrayList<AbstractEntity> producerEntities = new ArrayList<>();
-
     final Random random = new Random();
     private long uuid = random.nextLong();
     private long currentTick;
 
-    @Override
-    public void tick(long t) throws CloneNotSupportedException, IllegalAccessException {
-        this.currentTick = t;
-    }
-
     private EntityRenderer entityRenderer = new EntityRenderer(this);
 
-    //    @Passable4IntensiveProperty
+    //below r properties that really matter
+
+    //note: basic vars would be 'deep cloned' in clone() automatically
+    //note: other vars would be 'deep cloned' in clone(), or pass() if marked by @Passable4Class or @Passable4ExtensiveProperty, check the overwrite clone()
+    //note: @Passable4ExtensiveProperty means it's an extensive property which needs to be divided by the entity and is child in reproducing
+
     private Vector_Math pos;
-    //    @Passable4IntensiveProperty
     private Vector_Math velocity;
     @Mutable(minValue = 1)
-    //    @Passable4IntensiveProperty
     private double maxVelocity;
-    //    @Passable4IntensiveProperty
     private Vector_Math acceleration;
     @Mutable(minValue = 1E-1)
-    //    @Passable4IntensiveProperty
     private double maxAcceleration;
     @Mutable
     private double maxMass;
-
     @Mutable
     private double maxVolume;
     @Mutable
@@ -50,31 +44,23 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private Energy energy;
     @Passable4ExtensiveProperty
     private double mass;
-
     @Passable4ExtensiveProperty
     private double volume;
     @Passable4ExtensiveProperty
     @Mutable
     private PassType passType = PassType.A;
-    //    @Passable4IntensiveProperty
     @Mutable
     private EntityType entityType;
-    //    @Passable4IntensiveProperty
     @Mutable
     private double maxEnergyGenerateRate;
-    //    @Passable4IntensiveProperty
     @Mutable(minValue = 5E-1, maxValue = 1E2, step = 5E-1)
     private float energyGenerateRatio = 2;
-    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double reachOfKillAura;
-    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 0.8)
     private double energyTransferRate;
-    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double safeDistance;
-    //    @Passable4IntensiveProperty
     @Mutable(minValue = 0.4, maxValue = 0.9)
     private double rateOfMaxAccelerationOnChasingTarget;
     private AbstractEntity targetOfConsumer;
@@ -91,17 +77,6 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         if (getAcceleration() == null || getAcceleration().length() == 0) {
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
         }
-    }
-
-    @Override
-    protected AbstractEntity clone() throws CloneNotSupportedException {
-        AbstractEntity clone = (AbstractEntity) super.clone();
-        clone.energy = (Energy) this.energy.clone();
-        clone.velocity = this.velocity.clone();
-        clone.acceleration = this.acceleration.clone();
-        clone.pos = this.pos.clone();
-        clone.entityRenderer = this.entityRenderer.clone(clone);
-        return clone;
     }
 
     public AbstractEntity(double mass, double volume, PassType passType, EntityType entityType, Energy energy, double maxEnergyGenerateRate, double maxVelocity, double maxAcceleration) {
@@ -121,6 +96,22 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
             setAcceleration(new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}));
         }
         this.velocity = getAcceleration().clone();
+    }
+
+    @Override
+    public void tick(long t) throws CloneNotSupportedException, IllegalAccessException {
+        this.currentTick = t;
+    }
+
+    @Override
+    protected AbstractEntity clone() throws CloneNotSupportedException {
+        AbstractEntity clone = (AbstractEntity) super.clone();
+        clone.energy = (Energy) this.energy.clone();
+        clone.velocity = this.velocity.clone();
+        clone.acceleration = this.acceleration.clone();
+        clone.pos = this.pos.clone();
+        clone.entityRenderer = this.entityRenderer.clone(clone);
+        return clone;
     }
 
     public AbstractEntity reproduce() throws CloneNotSupportedException, IllegalAccessException {
@@ -187,8 +178,10 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
 
-    //below r just automatically generated getters and setters
+    //below r just automatically generated getters and setters, so no real mechanism inside
     //don't need to read them
+
+    //if unexpected things happens, these getters and setters could help u find why in debug for they just limit the access to these private properties, that's why I write all properties here in an abstract clazz
 
     public Random getRandom() {
         return random;

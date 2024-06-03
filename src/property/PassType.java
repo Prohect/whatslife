@@ -2,6 +2,6 @@ package property;
 
 public enum PassType {
 
-    A, B// A-> 均分, B->1:19分
-
+    // A-> divide extensive fair, B->not fair, eg.19:1
+    A, B
 }
