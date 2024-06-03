@@ -141,7 +141,7 @@ public class Entrance {
                 consumer.tick(time);
             }
 
-            //for debug just fold them if not using them.
+            //for debug, just fold them if not using them.
 /*            if (producerEntities.size() >= 1E3) {
                 AbstractEntity e = producerEntities.get((int) (producerEntities.size() * Math.random()) - 1);
                 System.out.println(e);
