@@ -100,8 +100,8 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
 
     public double getAllEnergy4AllType() {
         double result = 0;
-        for (int i = 0; i < energy.length; i++) {
-            result += energy[i];
+        for (double v : energy) {
+            result += v;
         }
         return result;
     }
@@ -162,10 +162,14 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     }
 
     public double getAll4currentType() {
-        double result = energy[currentEnergyType];
-        energy[currentEnergyType] = 0;
-        if (currentEnergyType + 1 < 8) {
-            setCurrentEnergyType(currentEnergyType + 1);
+        double result = Math.min(energy[currentEnergyType], maxPower[currentEnergyType] - energyUsedThisTick[currentEnergyType]);
+        energy[currentEnergyType] -= result;
+        if (energy[currentEnergyType] <= 0) {
+            if (currentEnergyType + 1 < 8) {
+                setCurrentEnergyType(currentEnergyType + 1);
+            } else {
+                setCurrentEnergyType(0);
+            }
         }
         return result;
     }

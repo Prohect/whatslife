@@ -52,9 +52,13 @@ public class Entity extends AbstractEntity {
 
                 break;
             case CONSUMER:
-                if (this.tryEat((Entity) this.getTargetOfConsumer())) {
+                if (this.tryEat(this.getTargetOfConsumer())) {
+                    tryEatAllNearProducer();
                     setTargetOfConsumer(getClosestProducerEntity());
-                    this.setAcceleration(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
+                    if (getTargetOfConsumer() == null)
+                        this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
+                    else
+                        this.setAcceleration(getTargetOfConsumer().getPos().clone().sub(this.getPos()));
                 } else {
                     if (getTargetOfConsumer() == null || !producerEntities.contains(getTargetOfConsumer())) {
                         this.setTargetOfConsumer(getClosestProducerEntity());
@@ -103,12 +107,12 @@ public class Entity extends AbstractEntity {
         //mass update
         if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D) {
             double d = this.setMass(Math.min(this.getMass() + ((this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType())) / 5), this.getMaxMass()));
-            this.getEnergy().get(d);
-            this.getEnergy().get(0.5f * d * getVelocity().dot(getVelocity()));
+            this.getEnergy().hardGet(d);
+            this.getEnergy().hardGet(0.5f * d * getVelocity().dot(getVelocity()));
         }
 
         //die
-        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= 0.11d) {
+        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= 0.11D) {
             this.die();
             return;
         }
@@ -116,7 +120,7 @@ public class Entity extends AbstractEntity {
             this.die();
             return;
         }
-        if (this.getEnergy().getAllEnergy4AllType() <= (this.getEntityType() == EntityType.CONSUMER ? 0.4 : 0.1)) {
+        if (this.getEnergy().getAllEnergy4AllType() <= 0.1) {
             this.die();
             return;
         }
@@ -159,11 +163,6 @@ public class Entity extends AbstractEntity {
         }
     }
 
-    private void die() {
-        producerEntities.remove(this);
-        consumerEntities.remove(this);
-    }
-
     private void posCheck() {
         if (getPos().getY() > Entrance.map.getMaxY()) {
             getPos().setY(Entrance.map.getMaxY());
@@ -185,7 +184,7 @@ public class Entity extends AbstractEntity {
         }
     }
 
-    private boolean tryEat(Entity entity) {
+    private boolean tryEat(AbstractEntity entity) {
         if (entity == null) return false;
         Vector_Math distanceVector = entity.getPos().clone();
         distanceVector.sub(this.getPos());
@@ -195,6 +194,18 @@ public class Entity extends AbstractEntity {
             return true;
         }
         return false;
+    }
+
+    private void tryEatAllNearProducer() {
+        if (producerEntities.isEmpty()) return;
+        AbstractEntity entity = getClosestEntityFromList(producerEntities);
+        Vector_Math deltaPos = entity.getPos().clone().sub(this.getPos());
+        while (deltaPos.length() <= this.getReachOfKillAura()) {
+            tryEat(entity);
+            entity = getClosestEntityFromList(producerEntities);
+            if (entity == null) return;
+            deltaPos = entity.getPos().clone().sub(this.getPos());
+        }
     }
 
     private AbstractEntity getClosestEntityFromList(List<AbstractEntity> list) {

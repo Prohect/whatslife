@@ -30,8 +30,9 @@ public class Entrance {
         //logs init
         File logRoot = new File("log");
         if (!logRoot.exists()) logRoot.mkdir();
-        File logFile = new File(logRoot, System.currentTimeMillis() + ".log");
-        File historyLogFile = new File(logRoot, "history" + System.currentTimeMillis() + ".csv");
+        long startTime = System.currentTimeMillis();
+        File logFile = new File(logRoot, startTime + ".log");
+        File historyLogFile = new File(logRoot, "history" + startTime + ".csv");
         logFile.createNewFile();
         historyLogFile.createNewFile();
         PrintWriter writer = new PrintWriter(logFile);
@@ -47,7 +48,7 @@ public class Entrance {
         //GUI init
         MyFrame myFrame = new MyFrame(new int[]{1920, 1080});
         MyJPanel panel = myFrame.getPanel();
-        AtomicBoolean running = new AtomicBoolean(true), pressed = new AtomicBoolean(false), hasWheelMove = new AtomicBoolean(false);
+        AtomicBoolean running = new AtomicBoolean(true), pressed = new AtomicBoolean(false), hasWheelMove = new AtomicBoolean(false), frameUpdated = new AtomicBoolean(true);
         panel.addMouseListener(new MyMouseInputListener4MainPanel(running, pressed));
         panel.addMouseWheelListener(e -> hasWheelMove.set(true));
 
@@ -58,11 +59,12 @@ public class Entrance {
 
         //tick processing loop
         while (running.get() && time < maxTime && !producerEntities.isEmpty()) {
-            if (pressed.get() || hasWheelMove.get()) {
+            if ((pressed.get() || hasWheelMove.get()) && frameUpdated.get()) {
                 try {
-                    tickAndPaint(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame);
+                    tickAndPaint(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame, frameUpdated);
                 } catch (CloneNotSupportedException | IllegalAccessException ex) {
                     throw new RuntimeException(ex);
+
                 } finally {
                     hasWheelMove.set(false);
                 }
@@ -176,8 +178,8 @@ public class Entrance {
         }
     }
 
-    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame) throws CloneNotSupportedException, IllegalAccessException {
+    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame, AtomicBoolean frameUpdated) throws CloneNotSupportedException, IllegalAccessException {
         tick(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame);
-        panel.paint(myFrame.getGraphics());
+        panel.paint(myFrame.getGraphics(), frameUpdated);
     }
 }

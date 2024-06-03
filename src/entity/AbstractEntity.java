@@ -53,12 +53,12 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private EntityType entityType;
     @Mutable
     private double maxEnergyGenerateRate;
-    @Mutable(minValue = 5E-1, maxValue = 1E2, step = 5E-1)
-    private float energyGenerateRatio = 2;
+    @Mutable(minValue = 5E-1, maxValue = 1E2)
+    private float energyGenerateRatio = 10;
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double reachOfKillAura;
-    @Mutable(minValue = 1E-2, maxValue = 0.8)
-    private double energyTransferRate;
+    @Mutable(minValue = 1E-2, maxValue = 1)
+    private double energyTransferRate = 0.3;
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double safeDistance;
     @Mutable(minValue = 0.4, maxValue = 0.9)
@@ -122,13 +122,18 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         return e;
     }
 
+    public void die() {
+        producerEntities.remove(this);
+        consumerEntities.remove(this);
+    }
+
     @Override
     public String toString() {
         //why this is not clazz{a[num],bs[num1, num2]} pattern?
         //to output these thing into a csv, then I could us excel to process these data
 
         //if some property is ignored, probably it's mechanism not coded yet or not helpful in data processing
-        return "AbstractEntity," +
+        return "AbstractEntity" +
 //                ", uuid," + uuid +
                 ", tick," + currentTick +
                 ", pos," + pos +

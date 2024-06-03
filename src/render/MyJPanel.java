@@ -5,13 +5,11 @@ import entity.AbstractEntity;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MyJPanel extends JPanel {
 
     private ArrayList<AbstractEntity> renders = new ArrayList<>();
-
-    Random random = new Random();
 
     @Override
     public void paint(Graphics g) {
@@ -23,10 +21,18 @@ public class MyJPanel extends JPanel {
         g2D.drawLine(0, 540, 1920, 540);
         g2D.drawLine(960, 0, 960, 1080);
         renders.forEach(entityRenderer -> entityRenderer.paint(g2D));
+
+
 //        var color = g2D.getColor();
 //        g2D.setColor(Color.BLUE);
 //        g2D.drawOval(900 + random.nextInt(120), 500 + random.nextInt(80), 20, 20);
 //        g2D.setColor(color);
+    }
+
+    public void paint(Graphics g, AtomicBoolean frameUpdated) {
+        frameUpdated.set(false);
+        this.paint(g);
+        frameUpdated.set(true);
     }
 
     public ArrayList<AbstractEntity> getRenders() {
