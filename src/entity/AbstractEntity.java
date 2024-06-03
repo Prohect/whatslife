@@ -25,7 +25,7 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     //below r properties that really matter
 
     //note: basic vars would be 'deep cloned' in clone() automatically
-    //note: other vars would be 'deep cloned' in clone(), or pass() if marked by @Passable4Class or @Passable4ExtensiveProperty, check the overwrite clone()
+    //note: other vars would be 'deep cloned' in clone(), or pass() if marked by @Passable4Class or @Passable4ExtensiveProperty, check the override clone()
     //note: @Passable4ExtensiveProperty means it's an extensive property which needs to be divided by the entity and is child in reproducing
 
     private Vector_Math pos;
