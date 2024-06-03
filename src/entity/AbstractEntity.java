@@ -128,7 +128,7 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
         //to output these thing into a csv, then I could us excel to process these data
 
         //if some property is ignored, probably it's mechanism not coded yet or not helpful in data processing
-        return "AbstractEntity," +
+        return "AbstractEntity" +
 //                ", uuid," + uuid +
                 ", tick," + currentTick +
                 ", pos," + pos +
