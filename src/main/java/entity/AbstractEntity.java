@@ -47,20 +47,20 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Passable4ExtensiveProperty
     private double volume;
     @Passable4ExtensiveProperty
-    @Mutable
+    @Mutable(step = 1E-2)
     private PassType passType = PassType.A;
     @Mutable
     private EntityType entityType;
     @Mutable
-    private double maxEnergyGenerateRate;
+    private double maxEnergyGenerateRate = 1;
     @Mutable(minValue = 5E-1, maxValue = 1E2)
     private float energyGenerateRatio = 10;
     @Mutable(minValue = 1E-2, maxValue = 20)
-    private double reachOfKillAura = 5;
+    private double reachOfKillAura = 1;
     @Mutable(minValue = 1E-2, maxValue = 1)
     private double energyTransferRate = 0.7;
-    @Mutable(minValue = 1E-2, maxValue = 5)
-    private double safeDistance;
+    @Mutable(minValue = 1E-2, maxValue = 40)
+    private double safeDistance = 3;
     @Mutable(minValue = 0.4, maxValue = 0.9)
     private double rateOfMaxAccelerationOnChasingTarget = 0.4;
     private AbstractEntity targetOfConsumer;

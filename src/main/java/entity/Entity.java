@@ -38,7 +38,7 @@ public class Entity extends AbstractEntity {
         //TODO:acceleration process needed by brain
         switch (getEntityType()) {
             case PRODUCER:
-                double result = Math.min(getMaxEnergyGenerateRate() * rand.nextFloat(), getEnergyGenerateRatio() * Lib.currentEnergyFromSun / AbstractEntity.producerEntities.size());
+                double result = Math.min(getMaxEnergyGenerateRate() * ((3 + rand.nextFloat(4) / 7)), getEnergyGenerateRatio() * Lib.currentEnergyFromSun / AbstractEntity.producerEntities.size());
                 this.getEnergy().add(result);
                 Lib.currentEnergyFromSun -= result;
                 AbstractEntity e = getClosestConsumerEntity();
@@ -52,10 +52,11 @@ public class Entity extends AbstractEntity {
 
                 break;
             case CONSUMER:
-                if (getTargetOfConsumer() == null || !producerEntities.contains(getTargetOfConsumer()))
+                killAura();
+                if (getTargetOfConsumer() == null || !producerEntities.contains(getTargetOfConsumer())) {
                     setTargetOfConsumer(getClosestProducerEntity());
+                }
                 if (this.tryEat(this.getTargetOfConsumer())) {
-                    tryEatAllNearProducer();
                     setTargetOfConsumer(getClosestProducerEntity());
                     if (getTargetOfConsumer() == null)
                         this.setAcceleration(getAcceleration().clone().add((new Vector_Math(new double[]{(rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration(), (rand.nextDouble(2) - 1) * 0.2 * getMaxAcceleration()}))));
@@ -77,7 +78,7 @@ public class Entity extends AbstractEntity {
         //velocity & energy
         this.getEnergy().tick(getCurrentTick());
         if (getEntityType() == EntityType.PRODUCER) {
-            this.getVelocity().multi(0.8d);
+            this.getVelocity().multi(0.81d);
         }
         if (getEntityType() == EntityType.CONSUMER && getTargetOfConsumer() != null) {
             double vi = getVelocity().dot(getTargetOfConsumer().getPos().clone().sub(this.getPos())) / getTargetOfConsumer().getPos().clone().sub(this.getPos()).length();
@@ -120,7 +121,7 @@ public class Entity extends AbstractEntity {
         }
 
         //die
-        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.05D)) {
+        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.001D)) {
             this.die();
             return;
         }
@@ -128,7 +129,7 @@ public class Entity extends AbstractEntity {
             this.die();
             return;
         }
-        if (this.getEnergy().getAllEnergy4AllType() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.05D)) {
+        if (this.getEnergy().getAllEnergy4AllType() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.0003D)) {
             this.die();
             return;
         }
@@ -203,7 +204,7 @@ public class Entity extends AbstractEntity {
         return false;
     }
 
-    private void tryEatAllNearProducer() {
+    private void killAura() {
         if (producerEntities.isEmpty()) return;
         AbstractEntity entity = getClosestEntityFromList(producerEntities);
         Vector_Math deltaPos = entity.getPos().clone().sub(this.getPos());
