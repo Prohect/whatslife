@@ -4,8 +4,8 @@ import entrance.Entrance;
 import property.EntityType;
 import property.PassType;
 import property.properties.Energy;
-import until.Lib;
-import until.Vector_Math;
+import util.Lib;
+import util.Vector_Math;
 
 import java.util.ArrayList;
 import java.util.List;

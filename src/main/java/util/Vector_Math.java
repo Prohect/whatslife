@@ -1,6 +1,4 @@
-package until;
-
-import java.util.Arrays;
+package util;
 
 public class Vector_Math implements Cloneable {
 

@@ -1,4 +1,4 @@
-package until;
+package util;
 
 public enum NumberType {
 

@@ -3,7 +3,7 @@ package entity;
 import property.*;
 import property.properties.Energy;
 import render.EntityRenderer;
-import until.Vector_Math;
+import util.Vector_Math;
 
 import java.awt.*;
 import java.util.ArrayList;

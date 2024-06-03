@@ -2,7 +2,7 @@ package render;
 
 import entity.AbstractEntity;
 import property.EntityType;
-import until.Vector_Math;
+import util.Vector_Math;
 
 import java.awt.*;
 

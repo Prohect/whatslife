@@ -9,12 +9,14 @@ import property.PassType;
 import property.properties.Energy;
 import render.MyFrame;
 import render.MyJPanel;
-import until.Lib;
+import util.Lib;
+import util.RealRand;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,6 +29,22 @@ public class Entrance {
     public static final long maxTime = (long) 1E4;
 
     public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException, IOException {
+
+        RealRand rand = new RealRand();
+        double sumRand = 0;
+        long time1 = System.currentTimeMillis();
+        for (int i = 0; i < 1E5; i++) {
+            sumRand += rand.nextDouble(2) - 1;
+        }
+        System.out.println(System.currentTimeMillis() - time1 + "ms per 1E5 readRand, sum = " + sumRand);
+        Random rand2 = new Random();
+        sumRand = 0;
+        time1 = System.currentTimeMillis();
+        for (int i = 0; i < 1E5; i++) {
+            sumRand += rand2.nextDouble(2) - 1;
+        }
+        System.out.println(System.currentTimeMillis() - time1 + "ms per 1E5 rand, sum = " + sumRand);
+
         //logs init
         File logRoot = new File("log");
         if (!logRoot.exists()) logRoot.mkdir();
