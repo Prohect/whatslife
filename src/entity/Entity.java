@@ -36,7 +36,7 @@ public class Entity extends AbstractEntity {
         //TODO:acceleration process needed by brain
         switch (getEntityType()) {
             case PRODUCER:
-                double result = Math.min(getMaxEnergyGenerateRate() * rand.nextFloat(), Lib.currentEnergyFromSun);
+                double result = Math.min(getMaxEnergyGenerateRate() * rand.nextFloat(), getEnergyGenerateRatio() * Lib.currentEnergyFromSun / AbstractEntity.producerEntities.size());
                 this.getEnergy().add(result);
                 Lib.currentEnergyFromSun -= result;
                 AbstractEntity e = getClosestConsumerEntity();

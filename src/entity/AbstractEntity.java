@@ -66,6 +66,9 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Mutable
     private double maxEnergyGenerateRate;
     //    @Passable4IntensiveProperty
+    @Mutable(minValue = 5E-1, maxValue = 1E1, step = 5E-1)
+    private float energyGenerateRatio;
+    //    @Passable4IntensiveProperty
     @Mutable(minValue = 1E-2, maxValue = 5)
     private double reachOfKillAura;
     //    @Passable4IntensiveProperty
@@ -78,6 +81,14 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     @Mutable(minValue = 0.4, maxValue = 0.9)
     private double rateOfMaxAccelerationOnChasingTarget;
     private AbstractEntity targetOfConsumer;
+
+    public float getEnergyGenerateRatio() {
+        return energyGenerateRatio;
+    }
+
+    public void setEnergyGenerateRatio(float energyGenerateRatio) {
+        this.energyGenerateRatio = energyGenerateRatio;
+    }
 
     public long getUuid() {
         return uuid;
@@ -280,6 +291,7 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     public String toString() {
         return "AbstractEntity," +
 //                ", uuid," + uuid +
+                ", tick," + tick +
                 ", pos," + pos +
                 ", velocity," + velocity +
                 ", maxVelocity," + maxVelocity +

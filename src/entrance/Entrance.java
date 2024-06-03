@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 //TIP 要<b>运行</b>代码，请按 <shortcut actionId="Run"/> 或
 // 点击装订区域中的 <icon src="AllIcons.Actions.Execute"/> 图标。
@@ -40,7 +41,7 @@ public class Entrance {
         ArrayList<AbstractEntity> producerEntities = AbstractEntity.producerEntities;
         ArrayList<AbstractEntity> consumerEntities = AbstractEntity.consumerEntities;
         producerEntities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.7d, 10, 10));
-        double sumEnergyLastTick = 0;
+        AtomicLong sumEnergyLastTick = new AtomicLong(0);
         AtomicBoolean flag = new AtomicBoolean(true);
 
         //GUI init
@@ -122,10 +123,13 @@ public class Entrance {
 
     }
 
-    private static void tick(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, double sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame) throws CloneNotSupportedException, IllegalAccessException {
+    private static void tick(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame) throws CloneNotSupportedException, IllegalAccessException {
         if (flag.get()) {
             ++time;
+            //reset the total energy could be generated this tick
             Lib.currentEnergyFromSun = 10;
+
+            //ticking
             int producersSize = producerEntities.size();
             for (int i = 0; i < producersSize; i++) {
                 AbstractEntity producer = producerEntities.get(producersSize - 1 - i);
@@ -136,45 +140,43 @@ public class Entrance {
                 AbstractEntity consumer = consumerEntities.get(consumersSize - 1 - i);
                 consumer.tick(time);
             }
-            if (producerEntities.size() >= 1E3) {
+
+            //for debug just fold them if not using them.
+/*            if (producerEntities.size() >= 1E3) {
                 AbstractEntity e = producerEntities.get((int) (producerEntities.size() * Math.random()) - 1);
                 System.out.println(e);
             }
             if (consumerEntities.size() >= 1E3) {
                 AbstractEntity e = consumerEntities.get((int) (consumerEntities.size() * Math.random()) - 1);
                 System.out.println(e);
-            }
-            double sum = 0;
+            }*/
 
+            //sum all energy for statics check 2 avoid CPU working on shits, also for debug
+            double sum = 0;
             for (AbstractEntity producerEntity : producerEntities) {
                 sum += producerEntity.getEnergy().getAllEnergy4AllType();
             }
             for (AbstractEntity consumerEntity : consumerEntities) {
                 sum += consumerEntity.getEnergy().getAllEnergy4AllType();
             }
-            if (sum - sumEnergyLastTick == 0) {
-                sameStatsTicks++;
-            } else sameStatsTicks = 0;
-            if (sameStatsTicks >= 100) {
-                flag.set(false);
-            }
+            //statics check
+            if ((long) sum - sumEnergyLastTick.get() == 0) sameStatsTicks++;
+            else sameStatsTicks = 0;
+            if (sameStatsTicks >= 100) flag.set(false);
+
+            //log update
             writer.println(time + "\t" + producerEntities.size() + "\t" + consumerEntities.size() + "\t" + sum);
-            sumEnergyLastTick = sum;
+            sumEnergyLastTick.set((long) sum);
             writer.flush();
 
-            //render update
+            //renders of panel update
             ArrayList<AbstractEntity> copy = (ArrayList<AbstractEntity>) producerEntities.clone();
             copy.addAll(consumerEntities);
             panel.setRenders(copy);
-//            myFrame.paint(myFrame.getGraphics());
-//            panel.paint(myFrame.getGraphics());
-
-//            System.out.println("test frame");
-
         }
     }
 
-    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, double sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame) throws CloneNotSupportedException, IllegalAccessException {
+    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame) throws CloneNotSupportedException, IllegalAccessException {
         tick(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame);
         panel.paint(myFrame.getGraphics());
     }
