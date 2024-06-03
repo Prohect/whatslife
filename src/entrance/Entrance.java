@@ -39,7 +39,13 @@ public class Entrance {
             producerEntities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.7d, 10, 10));
         }
 
-        File logFile = new File("log" + System.currentTimeMillis() + ".txt");
+        File logRoot = new File("log");
+
+        if (!logRoot.exists()) {
+            logRoot.mkdir();
+        }
+
+        File logFile = new File(logRoot, System.currentTimeMillis() + ".log");
         if (!logFile.exists()) {
             logFile.createNewFile();
         }
@@ -124,7 +130,7 @@ public class Entrance {
         myFrame.dispose();
 
         //History outPut
-        File historyLogFile = new File("history" + System.currentTimeMillis() + ".csv");
+        File historyLogFile = new File(logRoot, "history" + System.currentTimeMillis() + ".csv");
         if (!logFile.exists()) {
             logFile.createNewFile();
         }
