@@ -5,6 +5,8 @@ import java.awt.*;
 
 public class MyFrame extends JFrame {
 
+    static long counter = 0;
+
     private int[] size;
     private MyJPanel panel;
 
@@ -25,6 +27,7 @@ public class MyFrame extends JFrame {
     public void setSize(int[] size) {
         this.size = size;
         this.setSize(size[0], size[1]);
+        this.repaint();
     }
 
 
@@ -35,6 +38,8 @@ public class MyFrame extends JFrame {
     @Override
     public void paint(Graphics g) {
         super.paint(g);
+        counter++;
+//        System.out.println("MyFrame.paint() + " + counter);
         panel.paint(g);
     }
 }

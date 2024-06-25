@@ -27,10 +27,11 @@ public class Entrance {
     static int sameStatsTicks = 0;
     public static long time = 0;
     public static final long maxTime = (long) 1E4;
+    static AtomicBoolean running = new AtomicBoolean(true);
 
     public static void main(String[] args) throws IllegalAccessException, CloneNotSupportedException, IOException {
 
-        RealRand rand = new RealRand();
+/*        RealRand rand = new RealRand();
         double sumRand = 0;
         long time1 = System.currentTimeMillis();
         for (int i = 0; i < 1E5; i++) {
@@ -43,7 +44,7 @@ public class Entrance {
         for (int i = 0; i < 1E5; i++) {
             sumRand += rand2.nextDouble(2) - 1;
         }
-        System.out.println(System.currentTimeMillis() - time1 + "ms per 1E5 rand, sum = " + sumRand);
+        System.out.println(System.currentTimeMillis() - time1 + "ms per 1E5 rand, sum = " + sumRand);*/
 
         //logs init
         File logRoot = new File("log");
@@ -59,14 +60,14 @@ public class Entrance {
         //statistics
         ArrayList<AbstractEntity> producerEntities = AbstractEntity.producerEntities;
         ArrayList<AbstractEntity> consumerEntities = AbstractEntity.consumerEntities;
-        producerEntities.add(new Entity(0.2, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.7d, 10, 10));
+        producerEntities.add(new Entity(0.2E-4, 3, PassType.A, EntityType.PRODUCER, new Energy(1d), 0.7d, 10, 10));
         AtomicLong sumEnergyLastTick = new AtomicLong(0);
         AtomicBoolean flag = new AtomicBoolean(true);
 
         //GUI init
         MyFrame myFrame = new MyFrame(new int[]{1920, 1080});
         MyJPanel panel = myFrame.getPanel();
-        AtomicBoolean running = new AtomicBoolean(true), pressed = new AtomicBoolean(false), hasWheelMove = new AtomicBoolean(false), frameUpdated = new AtomicBoolean(true);
+        AtomicBoolean pressed = new AtomicBoolean(false), hasWheelMove = new AtomicBoolean(false), frameUpdated = new AtomicBoolean(true);
         panel.addMouseListener(new MyMouseInputListener4MainPanel(running, pressed));
         panel.addMouseWheelListener(e -> hasWheelMove.set(true));
 
@@ -80,7 +81,7 @@ public class Entrance {
             if ((pressed.get() || hasWheelMove.get()) && frameUpdated.get()) {
                 try {
                     tickAndPaint(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame, frameUpdated);
-                } catch (CloneNotSupportedException | IllegalAccessException ex) {
+                } catch (CloneNotSupportedException | IllegalAccessException | InterruptedException ex) {
                     throw new RuntimeException(ex);
 
                 } finally {
@@ -182,7 +183,10 @@ public class Entrance {
             //statics check
             if ((long) sum - sumEnergyLastTick.get() == 0) sameStatsTicks++;
             else sameStatsTicks = 0;
-            if (sameStatsTicks >= 100) flag.set(false);
+            if (sameStatsTicks >= 100) {
+                running.set(false);
+                flag.set(false);
+            }
 
             //log update
             writer.println(time + "\t\t" + producerEntities.size() + "\t\t" + consumerEntities.size() + "\t\t" + sum);
@@ -196,7 +200,7 @@ public class Entrance {
         }
     }
 
-    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame, AtomicBoolean frameUpdated) throws CloneNotSupportedException, IllegalAccessException {
+    private static void tickAndPaint(ArrayList<AbstractEntity> producerEntities, AtomicBoolean flag, ArrayList<AbstractEntity> consumerEntities, AtomicLong sumEnergyLastTick, PrintWriter writer, MyJPanel panel, MyFrame myFrame, AtomicBoolean frameUpdated) throws CloneNotSupportedException, IllegalAccessException, InterruptedException {
         tick(producerEntities, flag, consumerEntities, sumEnergyLastTick, writer, panel, myFrame);
         panel.paint(myFrame.getGraphics(), frameUpdated);
     }

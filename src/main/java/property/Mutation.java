@@ -26,19 +26,19 @@ public interface Mutation {
                 boolean accessible = field.canAccess(this);
                 field.setAccessible(true);
                 try {
-                    if (field.get(this) instanceof Mutation) {//非基本数据类型
+                    if (field.get(this) instanceof Mutation) {//实例变量类型
                         ((Mutation) field.get(this)).mutate();
-                    } else if (field.get(this) instanceof double[] array) {
+                    } else if (field.get(this) instanceof double[] array) {//基本数据类型或者其数组
                         Mutable mutable = field.getAnnotation(Mutable.class);
                         for (int i = 0; i < array.length; i++) {
-                            double v = array[i] + mutable.step() * nextDouble2();
+                            double v = array[i] + mutable.step() * nextDouble2() * (mutable.maxValue() - mutable.minValue());
                             v = Math.max(mutable.minValue(), v);
                             v = Math.min(mutable.maxValue(), v);
                             array[i] = v;
                         }
                     } else if (field.get(this) instanceof Double) {
                         Mutable mutable = field.getAnnotation(Mutable.class);
-                        double d = (double) field.get(this) + mutable.step() * nextDouble2();
+                        double d = (double) field.get(this) + mutable.step() * nextDouble2() * (mutable.maxValue() - mutable.minValue());
                         d = Math.max(mutable.minValue(), d);
                         d = Math.min(mutable.maxValue(), d);
                         field.set(this, d);

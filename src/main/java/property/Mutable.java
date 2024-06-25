@@ -12,5 +12,8 @@ public @interface Mutable {
 
     double maxValue() default 10;
 
+    /**
+     * @return the mute rate for enum or (max - min)
+     */
     double step() default 1E-1;
 }

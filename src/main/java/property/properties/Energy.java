@@ -19,7 +19,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     @Mutable
 //    @Passable4IntensiveProperty
     private double[] maxPower = new double[8];
-    @Mutable
+    @Mutable(minValue = 1E3, maxValue = 5E6, step = 1E-2)
 //    @Passable4IntensiveProperty
     private double[] mass2energyRate = new double[8];
     private AbstractEntity abstractEntity;
@@ -49,7 +49,7 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
     public Energy(double energy) {
         this.energy[0] = energy;
         this.maxPower = new double[]{1, 1, 1, 1, 1, 1, 1, 1};
-        this.mass2energyRate = new double[]{1, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+        this.mass2energyRate = new double[]{1E5, 0.5E5, 0.5E5, 0.5E5, 0.5E5, 0.5E5, 0.5E5, 0.5E5};
         this.preferEnergyType = 0;
     }
 
@@ -111,6 +111,9 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
             this.add(-d);
             return true;
         }
+//        var stackTrace = Thread.currentThread().getStackTrace();
+//        if (stackTrace.length - 1 >= 0)
+//            System.out.println(stackTrace[stackTrace.length - 1] + " invoke Energy.get() " + d);
         int i = (int) Math.floor(preferEnergyType);
         if (able(d, i)) {
             setCurrentEnergyType(i);
@@ -126,16 +129,17 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
         return false;
     }
 
-    public boolean hardGet(double d) {
+    public void hardGet(double d) {
         if (d <= 0) {
             this.add(-d);
-            return true;
+            return;
         }
         double d2 = d;
         int i = (int) Math.floor(preferEnergyType);
         if (able(d, i)) {
             setCurrentEnergyType(i);
-            return get(d, i);
+            get(d, i);
+            return;
         } else {
             d2 -= getValue4Type(i);
             get(d, i);
@@ -145,7 +149,8 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
             if (i == j) continue;
             if (able(d, j)) {
                 setCurrentEnergyType(j);
-                return get(d, j);
+                get(d, j);
+                return;
             } else {
                 d2 -= getValue4Type(i);
                 get(d, j);
@@ -153,7 +158,6 @@ public class Energy implements Mutation, Passable<Energy>, Tick, Cloneable {
                 setCurrentEnergyType(j);
             }
         }
-        return false;
     }
 
     @Override

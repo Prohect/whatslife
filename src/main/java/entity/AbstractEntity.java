@@ -35,8 +35,8 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private Vector_Math acceleration;
     @Mutable(minValue = 1E-1)
     private double maxAcceleration;
-    @Mutable
-    private double maxMass;
+    @Mutable(minValue = 1.02E-9, maxValue = 1E9)
+    private double maxMass = 5E-4;
     @Mutable
     private double maxVolume;
     @Mutable
@@ -51,7 +51,7 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     private PassType passType = PassType.A;
     @Mutable
     private EntityType entityType;
-    @Mutable
+    @Mutable(minValue = 1E-1)
     private double maxEnergyGenerateRate = 1;
     @Mutable(minValue = 5E-1, maxValue = 1E2)
     private float energyGenerateRatio = 10;
@@ -182,6 +182,9 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     public double setMass(double mass) {
         double result = mass - this.mass;
         this.mass = mass;
+        if (mass <= 1E-9) {
+            System.out.println("AbstractEntity.setMass");
+        }
         return result;
     }
 
@@ -273,6 +276,9 @@ public abstract class AbstractEntity implements Passable<AbstractEntity>, Mutati
     }
 
     public double getMass() {
+//        if (mass <= 1E-9) {
+//            System.out.println("AbstractEntity.getMass");
+//        }
         return mass;
     }
 

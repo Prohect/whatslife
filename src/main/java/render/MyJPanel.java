@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MyJPanel extends JPanel {
 
+    static long counter = 0;
+
     private ArrayList<AbstractEntity> renders = new ArrayList<>();
 
     @Override
@@ -29,7 +31,9 @@ public class MyJPanel extends JPanel {
 //        g2D.setColor(color);
     }
 
-    public void paint(Graphics g, AtomicBoolean frameUpdated) {
+    public void paint(Graphics g, AtomicBoolean frameUpdated) throws InterruptedException {
+        counter++;
+//        System.out.println("Thread[" + Thread.currentThread().getName() + "].invoke: MyJPanel.paint() " + counter);
         frameUpdated.set(false);
         this.paint(g);
         frameUpdated.set(true);

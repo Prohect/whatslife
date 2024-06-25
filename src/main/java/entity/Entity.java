@@ -115,49 +115,37 @@ public class Entity extends AbstractEntity {
 
         //mass update
         if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.2D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D) {
-            double d = this.setMass(Math.min(this.getMass() + ((this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType())) / 5), this.getMaxMass()));
+            double d = this.setMass(Math.min(this.getMass() + ((this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType())) / 5) * 1E-4, this.getMaxMass()));
             this.getEnergy().hardGet(d);
             this.getEnergy().hardGet(0.5f * d * getVelocity().dot(getVelocity()));
         }
 
         //die
-        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.001D)) {
-            this.die();
-            return;
-        }
-        if (this.getMass() <= 0.0001) {
-            this.die();
-            return;
-        }
-        if (this.getEnergy().getAllEnergy4AllType() <= (getEntityType() == EntityType.PRODUCER ? 0.1D : 0.0003D)) {
-            this.die();
-            return;
-        }
-        if (this.getVelocity().length() <= 0.1) {
-            this.die();
-            return;
-        }
+        dieCheck();
 
         //reproduce
-        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.3D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D && this.getMass() / this.getMaxMass() > 0.6) {
+        if (this.getEnergy().getAllEnergy4AllType() / this.getEnergy().getMaxEnergyVolume() > 0.1D && (this.getEnergy().getValue4Type((int) getEnergy().getPreferEnergyType()) / getEnergy().getMaxEnergyVolume4Type((int) getEnergy().getPreferEnergyType())) > 0.5D && this.getMass() / this.getMaxMass() > 0.6) {
             Entity e = (Entity) this.reproduce();
-            switch (e.getEntityType()) {
-                case CONSUMER:
-                    consumerEntities.add(e);
-                    // when this is producer while the son is a consumer,
-                    // the son would eat this for they have equal pos ,
-                    // making the producerEntities list remove this ,
-                    // causing ConcurrentModificationException where the list is iterated ,
-                    // so e.tick() cant be invoke that way !
-                    // also thinking about this e.tick() may reproduce another consumer causing the problem
-                    if (this.getEntityType() == EntityType.CONSUMER) {
+            //notice if the son don't suit the env it just dies and don't need to be processed
+            if (!e.dieCheck()) {
+                switch (e.getEntityType()) {
+                    case CONSUMER:
+                        consumerEntities.add(e);
+                        // when this is producer while the son is a consumer,
+                        // the son would eat this for they have equal pos ,
+                        // making the producerEntities list remove this ,
+                        // causing ConcurrentModificationException where the list is iterated ,
+                        // so e.tick() cant be invoke that way !
+                        // also thinking about this e.tick() may reproduce another consumer causing the problem
+                        if (this.getEntityType() == EntityType.CONSUMER) {
+                            e.tick(this.getCurrentTick());
+                        }
+                        break;
+                    case PRODUCER:
+                        producerEntities.add(e);
                         e.tick(this.getCurrentTick());
-                    }
-                    break;
-                case PRODUCER:
-                    producerEntities.add(e);
-                    e.tick(this.getCurrentTick());
-                    break;
+                        break;
+                }
             }
         }
 
@@ -170,6 +158,27 @@ public class Entity extends AbstractEntity {
             abstractEntities.add(this);
             AbstractEntity.entitiesHistory.put(this.getUuid(), abstractEntities);
         }
+    }
+
+    private boolean dieCheck() {
+        if (getEnergy().getAllEnergy4AllType() / getEnergy().getMaxEnergyVolume() <= (getEntityType() == EntityType.PRODUCER ? 0.2E-3D : 0.25E-3D)) {
+            this.die();
+            return true;
+        }
+        if (this.getMass() <= 1E-9) {
+            this.die();
+            return true;
+        }
+        //only make sure it's not zero or negative or too tiny
+        if (this.getEnergy().getAllEnergy4AllType() <= 1E-15) {
+            this.die();
+            return true;
+        }
+        if (this.getVelocity().length() <= 0.3) {
+            this.die();
+            return true;
+        }
+        return false;
     }
 
     private void posCheck() {
